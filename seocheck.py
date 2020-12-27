@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 import bs4
 import fire
+from functools import partial
 from urllib.parse import urlparse
 
 MAX_TTFB = 180
@@ -31,7 +32,7 @@ def get_page(response):
     return bs4.BeautifulSoup(response.text, 'lxml')
 
 
-def crawl(url, processed_urls:set=set()):
+def crawl(url, processed_urls:set=set(), t=16):
     if url in processed_urls:
         return {}
     processed_urls.add(url)
@@ -48,12 +49,13 @@ def crawl(url, processed_urls:set=set()):
 
     links = page.find_all('a')
     urls = [a.get('href') for a in links if a.get('href')]
-    with ThreadPoolExecutor() as ex:
-        ex.map(crawl, urls)
+    with ThreadPoolExecutor(max_workers=t) as ex:
+        fn = partial(crawl, processed_urls=processed_urls, t=t)
+        ex.map(fn, urls)
 
 
-def main(start_url):
-    crawl(start_url)
+def main(start_url, t):
+    crawl(start_url, t=t)
 
 if __name__ == "__main__":
     try:
