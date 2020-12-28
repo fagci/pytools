@@ -6,7 +6,7 @@ import bs4
 import fire
 import requests
 import sys
-from tqdm import tqdm
+from alive_progress import alive_bar
 from csv import writer
 from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor
@@ -58,9 +58,13 @@ def main(sitemap_url, t=4, o=''):
     links = xml.find_all('loc')
     urls = [a.text for a in links]
     total = len(urls)
+    results = []
     with ThreadPoolExecutor(max_workers=t) as ex:
         sys.stderr.write(f'found {total} urls\n')
-        results = [r for r in tqdm(ex.map(check, urls),total=total,unit='urls',file=sys.stderr)]
+        with alive_bar(total) as bar:
+            for r in ex.map(check, urls):
+                results.append(r)
+                bar()
 
     fail = 0
     success = 0
