@@ -1,3 +1,4 @@
 fire
+pandas
 alive-progress
 beautifulsoup4

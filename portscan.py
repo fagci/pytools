@@ -13,11 +13,8 @@ def scan(ip, port):
         s.setsockopt(so.SOL_SOCKET, so.SO_REUSEADDR, 1)
         r = s.connect_ex((ip, port)) == 0
         s.close()
-        return (port, r,)
-    except so.timeout:
-        pass
     except so.error as e:
-        print(f'{e}')
+        print(e)
         exit(e.errno)
     finally:
         return (port, r,)
@@ -30,23 +27,24 @@ def main(host, port_from, port_to, t=256):
 
     print(f'Scanning {ip} using {t} workers...')
     result = {}
-    with ThreadPoolExecutor(t) as ex:
-        ports = range(port_from, port_to + 1)
-        with alive_bar(len(ports), bar='smooth', spinner='dots_reverse') as bar:
-            for p, s in ex.map(partial(scan, ip), ports):
-                result[p] = s
-                bar()
+    ports = range(port_from, port_to + 1)
+    with alive_bar(len(ports)) as bar:
+        with ThreadPoolExecutor(t) as ex:
+            try:
+                for p, s in ex.map(partial(scan, ip), ports):
+                    result[p] = s
+                    bar()
+            except so.gaierror as e:
+                print(f'Host not resolved')
+                exit(e.errno)
+            except KeyboardInterrupt:
+                print('Interrupted by user')
+                ex.shutdown()
+                #exit(130)
     for p, s in result.items():
         if s:
             print(f'{p}: open')
 
 if __name__ == "__main__":
-    try:
-        fire.Fire(main)
-    except so.gaierror as e:
-        print(f'Host not resolved')
-        exit(e.errno)
-    except KeyboardInterrupt:
-        print('Interrupted by user')
-        exit(130)
+    fire.Fire(main)
 

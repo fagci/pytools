@@ -45,10 +45,10 @@ def check(url):
 
     return {
         'path': path,
-        'code': response.status_code in OK_CODES,
-        'ttfb': checks['ttfb'](response.elapsed.total_seconds() * 1000),
-        'title': checks['len_title'](title),
-        'description': checks['len_desc'](desc),
+        'code': int(response.status_code in OK_CODES),
+        'ttfb': int(checks['ttfb'](response.elapsed.total_seconds() * 1000)),
+        'title': int(checks['len_title'](title)),
+        'description': int(checks['len_desc'](desc)),
     }
 
 
