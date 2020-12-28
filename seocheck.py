@@ -1,61 +1,91 @@
 #!/usr/bin/env python
-from concurrent.futures import ThreadPoolExecutor
-import requests
+"""
+Performs base technical SEO check for urls from sitemap
+"""
 import bs4
 import fire
-from functools import partial
+import requests
+import sys
+from tqdm import tqdm
+from csv import writer
 from urllib.parse import urlparse
+from concurrent.futures import ThreadPoolExecutor
 
+OK_CODES = [200]
 MAX_TTFB = 180
 TITLE_MIN_LENGTH = 20
-TITLE_MAX_LENGTH = 60
+TITLE_MAX_LENGTH = 70
 DESCRIPTION_MIN_LENGTH = 70
-DESCRIPTION_MAX_LENGTH = 160
+DESCRIPTION_MAX_LENGTH = 200
 
-def check_meta(page: bs4.BeautifulSoup):
-    title = page.find('title').text
-    description = page.find('meta', {'name':'description'}).get('content')
-    t_minlen = len(title) >= TITLE_MIN_LENGTH
-    t_maxlen = len(title) <= TITLE_MAX_LENGTH
-    d_minlen = len(description) >= DESCRIPTION_MIN_LENGTH
-    d_maxlen = len(description) <= DESCRIPTION_MAX_LENGTH
+checks = {
+    'len_title': lambda t: TITLE_MIN_LENGTH < len(t) < TITLE_MAX_LENGTH,
+    'len_desc': lambda d: DESCRIPTION_MIN_LENGTH < len(d) < DESCRIPTION_MAX_LENGTH,
+    'ttfb': lambda t: t < MAX_TTFB,
+}
 
-    return t_minlen and t_maxlen and d_minlen and d_maxlen
-
-def check_ttfb(response: requests.Response):
-    return response.elapsed.total_seconds() * 1000 < MAX_TTFB
 
 def get_response(url):
     return requests.get(url)
+
 
 def get_page(response):
     return bs4.BeautifulSoup(response.text, 'lxml')
 
 
-def crawl(url, processed_urls:set=set(), t=16):
-    if url in processed_urls:
-        return {}
-    processed_urls.add(url)
+def check(url):
     response = get_response(url)
     page = get_page(response)
-
-    ttfb = check_ttfb(response)
-    meta = check_meta(page)
 
     pp = urlparse(url)
     path = f'{pp.path}?{pp.query}' if pp.query else pp.path
 
-    print(f'{path}: ttfb={ttfb}, meta={meta}')
+    title = page.find('title').text
+    desc = page.find('meta', {'name':'description'}).get('content')
 
-    links = page.find_all('a')
-    urls = [a.get('href') for a in links if a.get('href')]
+    return {
+        'path': path,
+        'code': response.status_code in OK_CODES,
+        'ttfb': checks['ttfb'](response.elapsed.total_seconds() * 1000),
+        'title': checks['len_title'](title),
+        'description': checks['len_desc'](desc),
+    }
+
+
+def main(sitemap_url, t=4, o=''):
+    response = get_response(sitemap_url)
+    xml = get_page(response)
+    links = xml.find_all('loc')
+    urls = [a.text for a in links]
+    total = len(urls)
     with ThreadPoolExecutor(max_workers=t) as ex:
-        fn = partial(crawl, processed_urls=processed_urls, t=t)
-        ex.map(fn, urls)
+        sys.stderr.write(f'found {total} urls\n')
+        results = [r for r in tqdm(ex.map(check, urls),total=total,unit='urls',file=sys.stderr)]
+
+    fail = 0
+    success = 0
+    for r in results:
+        for c in r.keys():
+            if c != 'path':
+                b = r[c]
+                if b: success+=1
+                else: fail+=1
+
+    sys.stderr.write(f'Success: {success}, fail: {fail}.\n')
+    if o:
+        with open(o, 'w') as output:
+            write_csv(results, output)
+    elif o == '-':
+        output = sys.stdout
+        write_csv(results, output)
+
+def write_csv(results, output):
+    w = writer(output)
+    w.writerow(results[0].keys())
+    for r in results:
+        w.writerow(r.values())
 
 
-def main(start_url, t):
-    crawl(start_url, t=t)
 
 if __name__ == "__main__":
     try:
