@@ -2,14 +2,14 @@
 """
 Performs base technical SEO check for urls from sitemap
 """
-import bs4
-import fire
-import requests
 import sys
-from alive_progress import alive_bar
+import requests
 from csv import writer
 from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor
+import bs4
+import fire
+from alive_progress import alive_bar
 
 OK_CODES = [200]
 MAX_TTFB = 180
@@ -37,8 +37,8 @@ def check(url):
     response = get_response(url)
     page = get_page(response)
 
-    pp = urlparse(url)
-    path = f'{pp.path}?{pp.query}' if pp.query else pp.path
+    p_url = urlparse(url)
+    path = f'{p_url.path}?{p_url.query}' if p_url.query else p_url.path
 
     title = page.find('title').text
     desc = page.find('meta', {'name':'description'}).get('content')
@@ -53,18 +53,17 @@ def check(url):
 
 
 def main(sitemap_url, t=4, o=''):
-    response = get_response(sitemap_url)
-    xml = get_page(response)
-    links = xml.find_all('loc')
-    urls = [a.text for a in links]
+    xml = get_page(get_response(sitemap_url))
+    urls = [a.text for a in xml.find_all('loc')]
     total = len(urls)
+
     results = []
     with ThreadPoolExecutor(max_workers=t) as ex:
         sys.stderr.write(f'found {total} urls\n')
-        with alive_bar(total) as bar:
+        with alive_bar(total) as progress:
             for r in ex.map(check, urls):
                 results.append(r)
-                bar()
+                progress()
 
     fail = 0
     success = 0
@@ -72,8 +71,10 @@ def main(sitemap_url, t=4, o=''):
         for c in r.keys():
             if c != 'path':
                 b = r[c]
-                if b: success+=1
-                else: fail+=1
+                if b:
+                    success += 1
+                else:
+                    fail += 1
 
     sys.stderr.write(f'Success: {success}, fail: {fail}.\n')
     if o:
