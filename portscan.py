@@ -40,7 +40,7 @@ def main(host, port_from, port_to, t=256):
             except KeyboardInterrupt:
                 print('Interrupted by user')
                 ex.shutdown()
-                exit(130)
+                sys.exit(130)
     for p, s in result.items():
         if s:
             print(f'{p}: open')

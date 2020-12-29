@@ -3,12 +3,12 @@
 Performs base technical SEO check for urls from sitemap
 """
 import sys
-import requests
 from csv import writer
 from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor
 import bs4
 import fire
+import requests
 from alive_progress import alive_bar
 
 OK_CODES = [200]
