@@ -54,13 +54,14 @@ def check(url):
 
 
 def main(sitemap_url, t=4, o=''):
+    sys.stderr.write('Check sitemap...\n')
     xml = get_page(get_response(sitemap_url))
     urls = [a.text for a in xml.find_all('loc')]
     total = len(urls)
+    sys.stderr.write(f'found {total} urls\n')
 
     results = []
     with ThreadPoolExecutor(max_workers=t) as ex:
-        sys.stderr.write(f'found {total} urls\n')
         with alive_bar(total) as progress:
             for r in ex.map(check, urls):
                 results.append(r)
@@ -90,7 +91,6 @@ def write_csv(results, output):
     w.writerow(results[0].keys())
     for r in results:
         w.writerow(r.values())
-
 
 
 if __name__ == "__main__":

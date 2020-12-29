@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-import socket as so
+from socket import socket, AF_INET, SOCK_STREAM, setdefaulttimeout, gethostbyname, gaierror
 from functools import partial
 from concurrent.futures import ThreadPoolExecutor
 
@@ -9,42 +9,35 @@ from alive_progress import alive_bar
 
 
 def scan(ip, port):
-    try:
-        s = so.socket(so.AF_INET, so.SOCK_STREAM)
-        s.setsockopt(so.SOL_SOCKET, so.SO_REUSEADDR, 1)
-        r = s.connect_ex((ip, port)) == 0
-        s.close()
-    except so.error as e:
-        r = False
-        print(e)
-        sys.exit(e.errno)
-    return (port, r,)
+    with socket(AF_INET, SOCK_STREAM) as s:
+        return port if s.connect_ex((ip, port)) == 0 else None
 
 
 def main(host, port_from, port_to, t=256):
-    so.setdefaulttimeout(0.5)
+    setdefaulttimeout(0.5)
 
-    ip = so.gethostbyname(host)
+    ip = gethostbyname(host)
 
     print(f'Scanning {ip} using {t} workers...')
-    result = {}
+    opened_ports = []
     ports = range(port_from, port_to + 1)
     with alive_bar(len(ports)) as progress:
         with ThreadPoolExecutor(t) as ex:
             try:
-                for p, s in ex.map(partial(scan, ip), ports):
-                    result[p] = s
+                for p in ex.map(partial(scan, ip), ports):
+                    if p:
+                        opened_ports.append(p)
                     progress()
-            except so.gaierror as e:
+            except gaierror as e:
                 print('Host not resolved')
                 sys.exit(e.errno)
             except KeyboardInterrupt:
                 print('Interrupted by user')
-                ex.shutdown()
+                # ex.shutdown()
                 sys.exit(130)
-    for p, s in result.items():
-        if s:
-            print(f'{p}: open')
+    print('Opened ports:')
+    for p in opened_ports:
+        print(f'{p}')
 
 if __name__ == "__main__":
     fire.Fire(main)
