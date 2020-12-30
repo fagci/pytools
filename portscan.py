@@ -5,7 +5,7 @@ from functools import partial
 from concurrent.futures import ThreadPoolExecutor
 
 import fire
-from alive_progress import alive_bar
+from tqdm import tqdm
 
 
 def scan(ip, port):
@@ -21,20 +21,17 @@ def main(host, port_from, port_to, t=256):
     print(f'Scanning {ip} using {t} workers...')
     opened_ports = []
     ports = range(port_from, port_to + 1)
-    with alive_bar(len(ports)) as progress:
-        with ThreadPoolExecutor(t) as ex:
-            try:
-                for p in ex.map(partial(scan, ip), ports):
-                    if p:
-                        opened_ports.append(p)
-                    progress()
-            except gaierror as e:
-                print('Host not resolved')
-                sys.exit(e.errno)
-            except KeyboardInterrupt:
-                print('Interrupted by user')
-                # ex.shutdown()
-                sys.exit(130)
+    with ThreadPoolExecutor(t) as ex:
+        try:
+            for p in tqdm(ex.map(partial(scan, ip), ports), total=len(ports), unit='ports'):
+                if p:
+                    opened_ports.append(p)
+        except gaierror as e:
+            print('Host not resolved')
+            sys.exit(e.errno)
+        except KeyboardInterrupt:
+            print('Interrupted by user')
+            sys.exit(130)
     print('Opened ports:')
     for p in opened_ports:
         print(f'{p}')

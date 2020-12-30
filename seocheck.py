@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 import bs4
 import fire
 import requests
-from alive_progress import alive_bar
+from tqdm import tqdm
 
 OK_CODES = [200]
 MAX_TTFB = 180
@@ -62,10 +62,8 @@ def main(sitemap_url, t=4, o=''):
 
     results = []
     with ThreadPoolExecutor(max_workers=t) as ex:
-        with alive_bar(total) as progress:
-            for r in ex.map(check, urls):
-                results.append(r)
-                progress()
+        for r in tqdm(ex.map(check, urls), total=total, unit='url'):
+            results.append(r)
 
     fail = 0
     success = 0
