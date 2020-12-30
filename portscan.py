@@ -1,37 +1,38 @@
 #!/usr/bin/env python
 import sys
 from socket import socket, AF_INET, SOCK_STREAM, setdefaulttimeout, gethostbyname, gaierror
-from functools import partial
-from concurrent.futures import ThreadPoolExecutor
 
 import fire
-from tqdm import tqdm
 
 
 def scan(ip, port):
     with socket(AF_INET, SOCK_STREAM) as s:
         return port if s.connect_ex((ip, port)) == 0 else None
 
-
-def main(host, port_from, port_to, t=256):
-    setdefaulttimeout(0.5)
-
-    ip = gethostbyname(host)
-
-    print(f'Scanning {ip} using {t} workers...')
-    opened_ports = []
-    ports = range(port_from, port_to + 1)
-    with ThreadPoolExecutor(t) as ex:
+def perform_scan(ip, ports, t):
+    print(f'Scanning {ip}...')
+    import concurrent.futures as fut
+    with fut.ThreadPoolExecutor(t) as ex:
         try:
-            for p in tqdm(ex.map(partial(scan, ip), ports), total=len(ports), unit='ports'):
-                if p:
-                    opened_ports.append(p)
+            from functools import partial
+            from tqdm import tqdm
+            iterator = ex.map(partial(scan, ip), ports)
+            iterator = tqdm(iterator, total=len(ports), unit='ports')
+            opened_ports = [p for p in iterator if p]
         except gaierror as e:
             print('Host not resolved')
             sys.exit(e.errno)
         except KeyboardInterrupt:
             print('Interrupted by user')
             sys.exit(130)
+    return opened_ports
+
+def main(host, port_from, port_to, t=None):
+    setdefaulttimeout(0.5)
+    ip = gethostbyname(host)
+    ports = range(port_from, port_to + 1)
+    opened_ports = perform_scan(ip, ports, t)
+
     print('Opened ports:')
     for p in opened_ports:
         print(f'{p}')
