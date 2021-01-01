@@ -12,25 +12,22 @@ import fire
 from tqdm import tqdm
 
 
-def check(target:tuple):
+def check(target: tuple):
     with so.socket(so.AF_INET, so.SOCK_STREAM) as s:
         return target if s.connect_ex(target) == 0 else None
 
 
-def scan(queue:Queue, lock:Lock, results:list, pb:tqdm):
+def scan(queue: Queue, lock: Lock, results: list, pb: tqdm):
     while True:
-        try:
-            r = check(queue.get())
-            with lock:
-                pb.update()
-                if r:
-                    results.append(r)
-        except:
-            sys.exit()
+        r = check(queue.get())
+        with lock:
+            pb.update()
+            if r:
+                results.append(r)
         queue.task_done()
 
 
-def main(host:str, p_start:int, p_end:int, t:int=16):
+def main(host: str, p_start: int, p_end: int, t: int=16):
     so.setdefaulttimeout(1)
     try:
         ip = so.gethostbyname(host)
