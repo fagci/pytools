@@ -9,7 +9,13 @@ from queue import Queue
 from threading import Thread, Lock
 
 import fire
-from tqdm import tqdm
+from rich.console import Console
+from rich.table import Table
+from rich.progress import Progress, TaskID
+
+pb = Progress()
+console: Console = pb.console
+console.clear()
 
 
 def check(target: tuple):
@@ -17,13 +23,18 @@ def check(target: tuple):
         return target if s.connect_ex(target) == 0 else None
 
 
-def scan(queue: Queue, lock: Lock, results: list, pb: tqdm):
+def scan(queue: Queue, lock: Lock, results: list):
     while True:
         r = check(queue.get())
+        pb.update(TaskID(0), advance=1)
         with lock:
-            pb.update()
             if r:
-                results.append(r)
+                h, p = r
+                try:
+                    serv = so.getservbyport(p, 'tcp')
+                except:
+                    serv = ''
+                results.append((h, p, serv))
         queue.task_done()
 
 
@@ -42,20 +53,26 @@ def main(host: str, p_start: int, p_end: int, t: int=16):
 
     results = []
 
-    pb = tqdm(total=size, unit='port')
-
-    for _ in range(t):
-        thr = Thread(target=scan, args=(queue, lock, results, pb,))
-        thr.setDaemon(True)
-        thr.start()
+    console.print(f'Scanning {size} ports on {ip} using {t} threads...')
+    pb.add_task('Scan', total=size)
+    pb.start()
 
     for port in ports:
         queue.put((ip, port))
 
-    queue.join()
+    for _ in range(t):
+        thr = Thread(target=scan, args=(queue, lock, results,))
+        thr.setDaemon(True)
+        thr.start()
 
-    for r in results:
-        print(*r, 'open')
+    queue.join()
+    pb.stop()
+    tt = Table('port', 'service')
+
+    for h, p, s in results:
+        tt.add_row(str(p), str(s))
+
+    console.print(tt)
 
 
 if __name__ == "__main__":
@@ -63,4 +80,5 @@ if __name__ == "__main__":
         fire.Fire(main)
     except KeyboardInterrupt:
         print('Interrupted by user')
+        pb.stop()
 

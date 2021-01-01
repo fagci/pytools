@@ -1,4 +1,4 @@
 fire
+rich
 tqdm
-alive-progress
 beautifulsoup4
