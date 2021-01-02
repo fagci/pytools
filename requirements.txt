@@ -1,4 +1,5 @@
 fire
 rich
 tqdm
+scapy
 beautifulsoup4

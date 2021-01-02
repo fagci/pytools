@@ -12,13 +12,17 @@ import fire
 
 
 def check(target: tuple):
-    with so.socket(so.AF_INET, so.SOCK_STREAM) as socket:
+    with so.socket() as socket: #tcp by default
         return target if socket.connect_ex(target) == 0 else None
 
 
 def scan(queue: Queue, lock: Lock, results: list):
-    while not queue.empty():
-        result = check(queue.get())
+    while True:
+        try:
+            result = check(queue.get())
+        except OSError as e:
+            print(e.strerror)
+            sys.exit(e.errno)
         with lock:
             if result:
                 host, port = result
@@ -48,13 +52,13 @@ def main(host: str, p_start: int, p_end: int, t: int=16):
 
     sys.stderr.write(f'Scan {size} ports on {ip} with {t} threads...\n')
 
-    for port in ports:
-        queue.put((ip, port))
+    args = (queue, lock, results,)
 
     for _ in range(t):
-        thr = Thread(target=scan, args=(queue, lock, results,))
-        thr.setDaemon(True)
-        thr.start()
+        Thread(target=scan, daemon=True, args=args).start()
+
+    for port in ports:
+        queue.put((ip, port))
 
     queue.join()
 
