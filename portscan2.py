@@ -9,32 +9,25 @@ from queue import Queue
 from threading import Thread, Lock
 
 import fire
-from rich.console import Console
-from rich.table import Table
-from rich.progress import Progress, TaskID
-
-pb = Progress()
-console: Console = pb.console
-console.clear()
 
 
 def check(target: tuple):
-    with so.socket(so.AF_INET, so.SOCK_STREAM) as s:
-        return target if s.connect_ex(target) == 0 else None
+    with so.socket(so.AF_INET, so.SOCK_STREAM) as socket:
+        return target if socket.connect_ex(target) == 0 else None
 
 
 def scan(queue: Queue, lock: Lock, results: list):
     while True:
-        r = check(queue.get())
-        pb.update(TaskID(0), advance=1)
+        result = check(queue.get())
         with lock:
-            if r:
-                h, p = r
+            if result:
+                host, port = result
                 try:
-                    serv = so.getservbyport(p, 'tcp')
+                    serv = so.getservbyport(port, 'tcp')
                 except:
                     serv = ''
-                results.append((h, p, serv))
+                results.append((host, port, serv))
+                print(f'{port:<5} {serv}')
         queue.task_done()
 
 
@@ -46,39 +39,28 @@ def main(host: str, p_start: int, p_end: int, t: int=16):
         print(host, 'not resolved.')
         sys.exit(e.errno)
 
-    ports = range(p_start, p_end + 1)
+    ports = range(max(1, p_start), min(65535, p_end) + 1)
     size = len(ports)
     queue = Queue(size)
     lock = Lock()
 
     results = []
 
-    console.print(f'Scanning {size} ports on {ip} using {t} threads...')
-    pb.add_task('Scan', total=size)
-    pb.start()
-
-    for port in ports:
-        queue.put((ip, port))
+    sys.stderr.write(f'Scan {size} ports on {ip} with {t} threads...\n')
 
     for _ in range(t):
         thr = Thread(target=scan, args=(queue, lock, results,))
         thr.setDaemon(True)
         thr.start()
 
+    for port in ports:
+        queue.put((ip, port))
+
     queue.join()
-    pb.stop()
-    tt = Table('port', 'service')
-
-    for h, p, s in results:
-        tt.add_row(str(p), str(s))
-
-    console.print(tt)
-
 
 if __name__ == "__main__":
     try:
         fire.Fire(main)
     except KeyboardInterrupt:
         print('Interrupted by user')
-        pb.stop()
 
