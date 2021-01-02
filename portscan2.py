@@ -17,7 +17,7 @@ def check(target: tuple):
 
 
 def scan(queue: Queue, lock: Lock, results: list):
-    while True:
+    while not queue.empty():
         result = check(queue.get())
         with lock:
             if result:
@@ -48,13 +48,13 @@ def main(host: str, p_start: int, p_end: int, t: int=16):
 
     sys.stderr.write(f'Scan {size} ports on {ip} with {t} threads...\n')
 
+    for port in ports:
+        queue.put((ip, port))
+
     for _ in range(t):
         thr = Thread(target=scan, args=(queue, lock, results,))
         thr.setDaemon(True)
         thr.start()
-
-    for port in ports:
-        queue.put((ip, port))
 
     queue.join()
 
