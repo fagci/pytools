@@ -1,5 +1,5 @@
-fire
-rich
-tqdm
-scapy
 beautifulsoup4
+dnspython
+fire
+scapy
+tqdm
