@@ -14,7 +14,7 @@ from dns.resolver import Answer, Resolver
 from tqdm import tqdm
 
 
-ipv4_re = compile(r'\d{1,3}\.\d{1,3}.\d{1,3}\.\d{1,3}')
+ipv4_re = compile(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
 
 
 def get_nameservers() -> list:
