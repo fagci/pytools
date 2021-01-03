@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from lib.ip import randip
 from bs4 import BeautifulSoup
 from requests import get, ConnectionError
@@ -12,18 +13,18 @@ headers = {
 
 def check_rnd_ip(_):
     ip = randip()
-    title = ''
+    title = '-'
     try:
         response = get(f'http://{ip}', headers, timeout=randrange(1,3))
         if response:
             bs = BeautifulSoup(response.content, 'html.parser')
             title = bs.find('title').string
-        print(ip, title)
+        return (ip, title,)
     except ConnectionError as e:
-        print(ip, e.strerror or 'timeout')
+        return (ip, e.strerror or 'timeout',)
     except Exception as e:
-        print(ip, e)
+        return (ip, e,)
 
 with ThreadPoolExecutor() as executor:
-    for r in executor.map(check_rnd_ip, range(1000)):
-        pass
+    for ip, title in executor.map(check_rnd_ip, range(1000)):
+        print(f'{ip:<15} {title}')
