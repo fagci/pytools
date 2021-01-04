@@ -1,6 +1,6 @@
 """Example module"""
 
-from .module import ToolframeModule
+from ._module import ToolframeModule
 
 class Example(ToolframeModule):
     """
