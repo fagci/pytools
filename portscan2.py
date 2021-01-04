@@ -3,16 +3,16 @@
 More user friendly threaded port scanner than previous version.
 Starts immediately.
 """
-import sys
-import socket as so
 from queue import Queue
-from threading import Thread, Lock
+import socket as so
+import sys
+from threading import Lock, Thread
 
 import fire
 
 
 def check(target: tuple):
-    with so.socket() as socket: #tcp by default
+    with so.socket() as socket:  # tcp by default
         return target if socket.connect_ex(target) == 0 else None
 
 
@@ -35,7 +35,7 @@ def scan(queue: Queue, lock: Lock, results: list):
         queue.task_done()
 
 
-def main(host: str, p_start: int, p_end: int, t: int=16):
+def main(host: str, p_start: int, p_end: int, t: int = 16):
     so.setdefaulttimeout(1)
     try:
         ip = so.gethostbyname(host)
@@ -62,9 +62,9 @@ def main(host: str, p_start: int, p_end: int, t: int=16):
 
     queue.join()
 
+
 if __name__ == "__main__":
     try:
         fire.Fire(main)
     except KeyboardInterrupt:
         print('Interrupted by user')
-

@@ -5,12 +5,12 @@ and get fastest (<100ms) for your location/network.
 
 By fagci (github.com/fagcinsk)
 """
-from re import compile
 from concurrent.futures import ThreadPoolExecutor as TPE
+from re import compile
 from time import time
 
-from requests import get
 from dns.resolver import Answer, Resolver
+from requests import get
 from tqdm import tqdm
 
 
@@ -37,7 +37,7 @@ def get_nameservers() -> list:
     """
     items = []
     for line in lines[1:]:
-        row = dict(zip(col_names,line.split(',')))
+        row = dict(zip(col_names, line.split(',')))
         ip = row['ip_address']
         if not ipv4_re.match(ip):
             continue
@@ -52,7 +52,7 @@ def check(nameserver):
     resolver.nameservers = [nameserver['ip_address']]
     try:
         t = time()
-        res:Answer = resolver.resolve('ya.ru', lifetime=0.1)
+        res: Answer = resolver.resolve('ya.ru', lifetime=0.1)
         if len(res.rrset) > 0:
             nameserver['time'] = round((time() - t) * 1000)
     except:
@@ -69,7 +69,7 @@ def get_list():
             if tim:
                 results.append(res)
 
-    for res in sorted(results,key=lambda row: row['time']):
+    for res in sorted(results, key=lambda row: row['time']):
         ip = res.get('ip_address')
         name = res.get('name') or '-'
         tim = res.get('time') or '-'

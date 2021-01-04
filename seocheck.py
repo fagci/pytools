@@ -2,10 +2,10 @@
 """
 Performs base technical SEO check for urls from sitemap
 """
-import sys
-from csv import writer
-from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor
+from csv import writer
+import sys
+from urllib.parse import urlparse
 
 import bs4
 import fire
@@ -42,7 +42,7 @@ def check(url):
     path = f'{p_url.path}?{p_url.query}' if p_url.query else p_url.path
 
     title = page.find('title').text
-    desc = page.find('meta', {'name':'description'}).get('content')
+    desc = page.find('meta', {'name': 'description'}).get('content')
 
     return {
         'path': path,
@@ -83,6 +83,7 @@ def main(sitemap_url, t=4, o=''):
     elif o == '-':
         output = sys.stdout
         write_csv(results, output)
+
 
 def write_csv(results, output):
     w = writer(output)

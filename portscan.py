@@ -1,6 +1,13 @@
 #!/usr/bin/env python
+from socket import (
+    AF_INET,
+    SOCK_STREAM,
+    gaierror,
+    gethostbyname,
+    setdefaulttimeout,
+    socket,
+)
 import sys
-from socket import socket, AF_INET, SOCK_STREAM, setdefaulttimeout, gethostbyname, gaierror
 
 import fire
 
@@ -8,6 +15,7 @@ import fire
 def scan(ip, port):
     with socket(AF_INET, SOCK_STREAM) as s:
         return port if s.connect_ex((ip, port)) == 0 else None
+
 
 def perform_scan(ip, ports, t):
     print(f'Scanning {ip}...')
@@ -27,6 +35,7 @@ def perform_scan(ip, ports, t):
             sys.exit(130)
     return opened_ports
 
+
 def main(host, port_from, port_to, t=None):
     setdefaulttimeout(0.5)
     ip = gethostbyname(host)
@@ -37,6 +46,6 @@ def main(host, port_from, port_to, t=None):
     for p in opened_ports:
         print(f'{p}')
 
+
 if __name__ == "__main__":
     fire.Fire(main)
-

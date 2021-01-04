@@ -3,12 +3,12 @@
 Wide IP range http checker.
 Checks for http application title and print it if exists.
 """
-from os.path import basename
 from concurrent.futures import ThreadPoolExecutor
+from os.path import basename
 
-from requests import get
 from bs4 import BeautifulSoup
 import fire
+from requests import get
 from tqdm import tqdm
 
 from lib.ip import randip
@@ -16,7 +16,7 @@ from lib.models import Fortune, create_tables
 
 
 headers = {
-        'User-Agent': f'fagci_pytools_fortune/1.0 (Wide range IP http checker, see https://github.com/fagcinsk/pytools/blob/main/{basename(__file__)})'
+    'User-Agent': f'fagci_pytools_fortune/1.0 (Wide range IP http checker, see https://github.com/fagcinsk/pytools/blob/main/{basename(__file__)})'
 }
 
 
@@ -57,8 +57,8 @@ def main(ip_count=1000, t=None):
 
 
 def list_items():
-    for item in Fortune.select().order_by(Fortune.created_at):
-        print(f'{item.ip:<15} {item.title}')
+    for item in Fortune.select().order_by(Fortune.title):
+        print(f'{item.ip}\t{item.title}')
 
 
 if __name__ == "__main__":
@@ -66,4 +66,3 @@ if __name__ == "__main__":
         'spin': main,
         'list': list_items,
     })
-

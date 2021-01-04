@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-from requests import get
-
 from bs4 import BeautifulSoup
 import fire
+from requests import get
+
 
 def main(url, selector=None):
     response = get(url)
@@ -13,6 +13,7 @@ def main(url, selector=None):
             print(soup.prettify())
     else:
         print(soup.prettify())
+
 
 if __name__ == "__main__":
     fire.Fire(main)

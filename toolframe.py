@@ -18,7 +18,6 @@ class ToolframeLoader(object):
                 self._modules.append(module.name)
                 setattr(self, module.name, None)
 
-
     def __getattribute__(self, name):
         if name == '_modules' or name not in self._modules:
             return super().__getattribute__(name)
@@ -29,4 +28,3 @@ class ToolframeLoader(object):
 
 if __name__ == "__main__":
     fire.Fire(ToolframeLoader)
-
