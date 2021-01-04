@@ -28,8 +28,7 @@ def check_rnd_ip(_):
             bs = BeautifulSoup(response.content, 'lxml')
             title = bs.find('title').string
             return (True, ip, title.strip(),)
-        else:
-            return (False, ip, '-',)
+        return (False, ip, '-',)
     except ConnectionError as e:
         return (False, ip, e.strerror or 'timeout',)
     except Exception as e:
@@ -41,7 +40,8 @@ def main(ip_count=1000, t=None):
     with ThreadPoolExecutor(t) as executor:
         results = []
         try:
-            for is_ok, ip, title in tqdm(executor.map(check_rnd_ip, range(ip_count)), unit='ip', total=ip_count):
+            iterator = executor.map(check_rnd_ip, range(ip_count))
+            for is_ok, ip, title in tqdm(iterator, unit='ip', total=ip_count):
                 if is_ok:
                     try:
                         Fortune.create(ip=ip, title=title)
