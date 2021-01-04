@@ -1,6 +1,4 @@
 beautifulsoup4
 dnspython
 fire
-fake-useragent
-scapy
 tqdm

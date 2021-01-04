@@ -4,7 +4,6 @@ Wide IP range http checker.
 Checks for http application title and print it if exists.
 """
 from os.path import basename
-from random import randrange
 from concurrent.futures import ThreadPoolExecutor
 
 from lib.ip import randip
@@ -12,6 +11,8 @@ from requests import get, ConnectionError
 from bs4 import BeautifulSoup
 import fire
 from tqdm import tqdm
+
+from lib.models import Fortune, create_tables
 
 
 headers = {
@@ -22,9 +23,9 @@ headers = {
 def check_rnd_ip(_):
     ip = randip()
     try:
-        response = get(f'http://{ip}', headers, timeout=0.5)
+        response = get(f'http://{ip}', headers, timeout=0.3)
         if response:
-            bs = BeautifulSoup(response.content, 'html.parser')
+            bs = BeautifulSoup(response.content, 'lxml')
             title = bs.find('title').string
             return (True, ip, title.strip(),)
         else:
@@ -36,11 +37,16 @@ def check_rnd_ip(_):
 
 
 def main(ip_count=1000, t=None):
+    create_tables()
     with ThreadPoolExecutor(t) as executor:
         results = []
         try:
             for is_ok, ip, title in tqdm(executor.map(check_rnd_ip, range(ip_count)), unit='ip', total=ip_count):
                 if is_ok:
+                    try:
+                        Fortune.create(ip=ip, title=title)
+                    except Exception as e:
+                        print(e)
                     results.append((ip, title))
         except KeyboardInterrupt:
             print('Interrupted by user')
@@ -50,6 +56,14 @@ def main(ip_count=1000, t=None):
         print(f'{ip:<15} {title}')
 
 
+def list_items():
+    for item in Fortune.select().order_by(Fortune.created_at):
+        print(f'{item.ip:<15} {item.title}')
+
+
 if __name__ == "__main__":
-    fire.Fire(main)
+    fire.Fire({
+        'spin': main,
+        'list': list_items,
+    })
 
