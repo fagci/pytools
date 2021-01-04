@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-"""Toolbox module loader & executor"""
+"""Toolbox module loader"""
 
 import pkgutil
 
-import fire
-
-MODULES_DIR = 'tf_modules'
+MODULES_DIR = 'modules'
 
 
 class ToolframeLoader(object):
@@ -24,7 +21,3 @@ class ToolframeLoader(object):
         classname = name[0].upper() + name[1:]
         module = getattr(__import__(f'{MODULES_DIR}.{name}'), name)
         return getattr(module, classname)
-
-
-if __name__ == "__main__":
-    fire.Fire(ToolframeLoader)
