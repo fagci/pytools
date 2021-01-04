@@ -6,12 +6,12 @@ Checks for http application title and print it if exists.
 from os.path import basename
 from concurrent.futures import ThreadPoolExecutor
 
-from lib.ip import randip
-from requests import get, ConnectionError
+from requests import get
 from bs4 import BeautifulSoup
 import fire
 from tqdm import tqdm
 
+from lib.ip import randip
 from lib.models import Fortune, create_tables
 
 
