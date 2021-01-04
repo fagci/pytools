@@ -15,16 +15,18 @@ from lib.models import Fortune as FortuneModel
 from lib.models import create_tables
 
 
-headers = {
+HEADERS = {
     'User-Agent': f'fagci_pytools_fortune/1.0 (Wide range IP http checker, see https://github.com/fagcinsk/pytools/blob/main/{basename(__file__)})'
 }
 
 
 class Fortune:
+    __doc__ = __doc__
+
     def _check_rnd_ip(self, _):
         ip = randip()
         try:
-            response = get(f'http://{ip}', headers, timeout=0.3)
+            response = get(f'http://{ip}', HEADERS, timeout=0.3)
             if response:
                 bs = BeautifulSoup(response.content, 'lxml')
                 title = bs.find('title').string
