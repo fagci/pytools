@@ -38,6 +38,7 @@ class Fortune:
             return (False, ip, e,)
 
     def spin(self, ip_count=1000, t=None):
+        """Spins IP roulette and makes http requests"""
         create_tables()
         with ThreadPoolExecutor(t) as executor:
             results = []
@@ -58,5 +59,6 @@ class Fortune:
             print(f'{ip:<15} {title}')
 
     def list(self):
+        """Get list of previous spins (ips with http title)"""
         for item in FortuneModel.select().order_by(FortuneModel.title):
             print(f'{item.ip}\t{item.title}')

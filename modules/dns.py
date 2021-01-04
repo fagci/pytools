@@ -17,7 +17,7 @@ from tqdm import tqdm
 ipv4_re = compile(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
 
 
-class Dnsfastest:
+class Dns:
     __doc__ = __doc__
 
     def _get_nameservers(self) -> list:
@@ -61,7 +61,7 @@ class Dnsfastest:
             pass
         return nameserver
 
-    def run(self):
+    def fastest(self):
         nameservers = self._get_nameservers()
         with TPE() as executor:
             results = []
