@@ -4,6 +4,8 @@ My various handy tools written in Python.
 
 For example: port scanner, fast dns server finder, HTML source prettifier with selector usage, example site SEO checker.
 
+Toolset uses `fire` module to start tools and my microframework to use with fire, see `./pt.py --help` for tools list and short descriptions.
+
 ## Prerequisites
 
 ```sh
