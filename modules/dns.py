@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """
-Retrieves ipv4 dns nameservers,
-and get fastest (<100ms) for your location/network.
+Perform DNS related actions
 
 By fagci (github.com/fagcinsk)
 """
@@ -62,6 +61,10 @@ class Dns:
         return nameserver
 
     def fastest(self):
+        """
+        Retrieves ipv4 dns nameservers,
+        and get fastest (<100ms) for your location/network.
+        """
         nameservers = self._get_nameservers()
         with TPE() as executor:
             results = []

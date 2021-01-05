@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """
-More user friendly threaded port scanner than previous version.
-Starts immediately.
+Various network scanners
 """
 from queue import Queue
 import socket as so
@@ -40,6 +39,13 @@ class Scan:
             self.queue.task_done()
 
     def ports(self, host: str, p_start: int, p_end: int, t: int = 16):
+        """Threaded port scanner
+
+        host -- host name or ip address
+        p_start -- port to scan from
+        p_end -- port to scan to (inclusive)
+        t -- number of threads
+        """
         so.setdefaulttimeout(1)
         try:
             ip = so.gethostbyname(host)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Performs base technical SEO check for urls from sitemap
+SEO tools
 """
 from concurrent.futures import ThreadPoolExecutor
 from csv import writer
@@ -53,6 +53,13 @@ class Seo:
         }
 
     def check(self, sitemap_url, t=4, o=''):
+        """Performs base technical SEO check for urls from sitemap
+
+        sitemap_url -- url pointing to sitemap.xml
+        t -- number of threads
+        Keep in mind: when more threads,
+        ttfb may be larger than MAX_TTFB and test will fail
+        """
         sys.stderr.write('Check sitemap...\n')
         xml = self._get_page(self._get_response(sitemap_url))
         urls = [a.text for a in xml.find_all('loc')]
