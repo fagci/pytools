@@ -30,8 +30,14 @@ class ToolframeLoader(object):
 
         # if class named as {ModuleName} exists
         if hasattr(module, classname):
+            module_class = getattr(module, classname)
+            if not module_class.__doc__:
+                module_class.__doc__ = module.__doc__
+            elif not module.__doc__:
+                module.__doc__ = module_class.__doc__
+
             # then return Class to initialize by `fire` only if needeed
-            return getattr(module, classname)
+            return module_class
 
         # if plain module without class, return module
         # as routine with docstring from module (hack for `fire`)

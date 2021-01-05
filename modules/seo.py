@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-"""
-SEO tools
-"""
 from concurrent.futures import ThreadPoolExecutor
 from csv import writer
 import sys
@@ -26,12 +23,14 @@ checks = {
 
 
 class Seo:
-    __doc__ = __doc__
+    """SEO tools"""
 
-    def _get_response(self, url):
+    @staticmethod
+    def _get_response(url):
         return requests.get(url)
 
-    def _get_page(self, response):
+    @staticmethod
+    def _get_page(response):
         return bs4.BeautifulSoup(response.text, 'lxml')
 
     def _check(self, url):
@@ -90,7 +89,8 @@ class Seo:
             output = sys.stdout
             self._write_csv(results, output)
 
-    def _write_csv(self, results, output):
+    @staticmethod
+    def _write_csv(results, output):
         w = writer(output)
         w.writerow(results[0].keys())
         for r in results:

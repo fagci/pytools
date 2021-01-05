@@ -20,21 +20,20 @@ HEADERS = {
 
 
 class Fortune:
-    __doc__ = __doc__
-
-    def _check_rnd_ip(self, _):
+    @staticmethod
+    def _check_rnd_ip(_):
         ip = randip()
         try:
             response = get(f'http://{ip}', HEADERS, timeout=0.3)
             if response:
                 bs = BeautifulSoup(response.content, 'lxml')
                 title = bs.find('title').string
-                return (True, ip, title.strip(),)
-            return (False, ip, '-',)
+                return True, ip, title.strip()
+            return False, ip, '-'
         except ConnectionError as e:
-            return (False, ip, e.strerror or 'timeout',)
+            return False, ip, e.strerror or 'timeout'
         except Exception as e:
-            return (False, ip, e,)
+            return False, ip, e
 
     def spin(self, ip_count=1000, t=None):
         """Spins IP roulette and makes http requests
@@ -59,7 +58,8 @@ class Fortune:
         for ip, title in results:
             print(f'{ip:<15} {title}')
 
-    def list(self):
+    @staticmethod
+    def list():
         """Get list of previous spins (ips with http title)"""
         for item in FortuneModel.select().order_by(FortuneModel.title):
             print(f'{item.ip}\t{item.title}')

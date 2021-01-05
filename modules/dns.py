@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-"""
-Perform DNS related actions
-
-By fagci (github.com/fagcinsk)
-"""
 from concurrent.futures import ThreadPoolExecutor as TPE
 from re import compile
 from time import time
@@ -17,7 +12,7 @@ ipv4_re = compile(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
 
 
 class Dns:
-    __doc__ = __doc__
+    """Perform DNS related actions"""
 
     def _get_nameservers(self) -> list:
         url = 'https://public-dns.info/nameservers.csv'

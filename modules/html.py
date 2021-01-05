@@ -1,13 +1,13 @@
 #!/usr/bin/env python
-"""HTML utilities"""
 from bs4 import BeautifulSoup
 from requests import get
 
 
 class Html:
-    __doc__ = __doc__
+    """HTML utilities"""
 
-    def source(self, url, selector=None):
+    @staticmethod
+    def source(url, selector=None):
         """Shows prettified html source,
         or some part by selector if specified
 

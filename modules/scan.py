@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-"""
-Various network scanners
-"""
 from queue import Queue
 import socket as so
 import sys
@@ -9,21 +6,22 @@ from threading import Lock, Thread
 
 
 class Scan:
-    __doc__ = __doc__
+    """Various network scanners"""
 
     def __init__(self) -> None:
         self.queue = Queue()
         self.lock = Lock()
         self.results = []
 
-    def _check(self, target: tuple):
+    @staticmethod
+    def _check_port(target: tuple):
         with so.socket() as socket:  # tcp by default
             return target if socket.connect_ex(target) == 0 else None
 
     def _scan(self):
         while True:
             try:
-                result = self._check(self.queue.get())
+                result = self._check_port(self.queue.get())
             except OSError as e:
                 print(e.strerror)
                 sys.exit(e.errno)
