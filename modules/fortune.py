@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-"""
-Wide IP range actions.
-"""
+"""Wide IP range actions."""
+
 from concurrent.futures import ThreadPoolExecutor
 from os.path import basename
 
@@ -27,11 +26,8 @@ class Fortune:
             response = get(f'http://{ip}', HEADERS, timeout=0.3)
             if response:
                 bs = BeautifulSoup(response.content, 'lxml')
-                title = bs.find('title').string
-                return True, ip, title.strip()
+                return True, ip, bs.title.string.strip()
             return False, ip, '-'
-        except ConnectionError as e:
-            return False, ip, e.strerror or 'timeout'
         except Exception as e:
             return False, ip, e
 
