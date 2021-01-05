@@ -34,6 +34,7 @@ class Seo:
                 fn = getattr(self, func)
                 if callable(fn):
                     self.checks[func[6:]] = fn
+                    fn.__doc__ = fn.__doc__.format(**globals())
 
         sys.stderr.write('Check sitemap...\n')
         xml = self._get_page(self._get_response(sitemap_url))
@@ -62,24 +63,27 @@ class Seo:
 
     @staticmethod
     def check_code(r: Response, _):
-        """Response code must be ok"""
-        return r.status_code in OK_CODES
+        """Response code must be in {OK_CODES}"""
+        return r.status_code in OK_CODES, r.status_code
 
     @staticmethod
     def check_ttfb(r: Response, _):
-        """Time to first byte must be small"""
-        return r.elapsed.total_seconds() * 1000 < MAX_TTFB
+        """Time to first byte must be < {MAX_TTFB}"""
+        ttfb = r.elapsed.total_seconds() * 1000
+        return ttfb < MAX_TTFB, ttfb
 
     @staticmethod
     def check_len_title(_, p):
-        """Title length of page will be in range"""
-        return TITLE_MIN_LENGTH < len(p.title.text) < TITLE_MAX_LENGTH
+        """Title length must be {TITLE_MIN_LENGTH} < x < {TITLE_MAX_LENGTH}"""
+        tlen = len(p.title.text)
+        return TITLE_MIN_LENGTH < tlen < TITLE_MAX_LENGTH, tlen
 
     @staticmethod
     def check_len_desc(_, p):
-        """Description length of page will be in range"""
+        """Description length mist be {DESCRIPTION_MIN_LENGTH} < x < {DESCRIPTION_MAX_LENGTH}"""
         d = p.find('meta', {'name': 'description'}).get('content')
-        return DESCRIPTION_MIN_LENGTH < len(d) < DESCRIPTION_MAX_LENGTH
+        dlen = len(d)
+        return DESCRIPTION_MIN_LENGTH < dlen < DESCRIPTION_MAX_LENGTH, dlen
 
     # /checks
 
@@ -103,7 +107,7 @@ class Seo:
         }
 
         for check_name, fn in self.checks.items():
-            result[check_name] = int(fn(response, page))
+            result[check_name] = fn(response, page)
 
         return result
 
