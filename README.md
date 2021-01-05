@@ -6,6 +6,13 @@ For example: port scanner, fast dns server finder, HTML source prettifier with s
 
 Toolset uses `fire` module to start tools and my microframework to use with fire, see `./pt` or `python pt` for tools list and short descriptions.
 
+
+## Usage
+
+```sh
+./pt dns fastest
+```
+
 ## Prerequisites
 
 ```sh
