@@ -7,7 +7,7 @@ class Html:
     """HTML utilities"""
 
     @staticmethod
-    def source(url, selector=None):
+    def src(url, selector=None):
         """Shows prettified html source,
         or some part by selector if specified
 
