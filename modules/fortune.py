@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """
-Wide IP range http checker.
-Checks for http application title and print it if exists.
+Wide IP range actions.
 """
 from concurrent.futures import ThreadPoolExecutor
 from os.path import basename
@@ -38,7 +37,9 @@ class Fortune:
             return (False, ip, e,)
 
     def spin(self, ip_count=1000, t=None):
-        """Spins IP roulette and makes http requests"""
+        """Spins IP roulette and makes http requests
+        Checks for http application title and print it if exists.
+        """
         create_tables()
         with ThreadPoolExecutor(t) as executor:
             results = []
