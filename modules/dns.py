@@ -18,14 +18,16 @@ class Dns:
         self.ns_source = 'https://public-dns.info/nameservers.csv'
 
     def _check(self, nameserver):
+        """Check NS for condition timeout"""
+
         resolver = Resolver(configure=False)
         resolver.nameservers = [nameserver['ip_address']]
 
+        t = time()
         try:
-            t = time()
             res: Answer = resolver.resolve(
                 self.domain_to_resolve, lifetime=self.max_s)
-            if len(res.rrset) > 0:
+            if res.rrset:
                 nameserver['time'] = round((time() - t) * 1000)
         except:
             pass
@@ -39,13 +41,13 @@ class Dns:
 
         self.max_s = float(max_ms) / 1000.0
         self.domain_to_resolve = domain
+
         nameservers = self._get_nameservers()
 
         with ThreadPoolExecutor() as executor:
             results = []
             for res in tqdm(executor.map(self._check, nameservers), total=len(nameservers)):
-                tim = res.get('time')
-                if tim:
+                if res.get('time'):
                     results.append(res)
 
         for res in sorted(results, key=lambda row: row['time']):
