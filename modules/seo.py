@@ -20,7 +20,17 @@ DESCRIPTION_MAX_LENGTH = 200
 class Seo:
     """SEO tools"""
 
-    def check(self, sitemap_url, t=4, o=''):
+    def all(self, url: str, t: int = 4, o=''):
+        url = url.rstrip('/')
+        robots_url = f'{url}/robots.txt'
+        sitemap_url = f'{url}/sitemap.xml'
+        if self._get_response(robots_url).status_code == 200:
+            print('robots.txt exists')
+        if self._get_response(sitemap_url).status_code == 200:
+            print('sitemap.xml exists, running checks...')
+            self.sitemap(sitemap_url, t, o)
+
+    def sitemap(self, sitemap_url, t=4, o=''):
         """Performs base technical SEO check for urls from sitemap
 
         sitemap_url -- url pointing to sitemap.xml
@@ -34,7 +44,7 @@ class Seo:
                 fn = getattr(self, func)
                 if callable(fn):
                     self.checks[func[6:]] = fn
-                    fn.__doc__ = fn.__doc__.format(**globals())
+                    print(fn.__doc__.format(**globals()))
 
         sys.stderr.write('Check sitemap...\n')
         xml = self._get_page(self._get_response(sitemap_url))
@@ -80,7 +90,7 @@ class Seo:
 
     @staticmethod
     def check_len_desc(_, p):
-        """Description length mist be {DESCRIPTION_MIN_LENGTH} < x < {DESCRIPTION_MAX_LENGTH}"""
+        """Description length must be {DESCRIPTION_MIN_LENGTH} < x < {DESCRIPTION_MAX_LENGTH}"""
         d = p.find('meta', {'name': 'description'}).get('content')
         dlen = len(d)
         return DESCRIPTION_MIN_LENGTH < dlen < DESCRIPTION_MAX_LENGTH, dlen
