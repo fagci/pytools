@@ -19,12 +19,12 @@ class Html:
 
         xpath -- ex.: //a/@href
         """
+        from lxml import etree
         for res in self._lxml(url).xpath(xpath):
-            if str(res).find('<') != -1:
-                soup = BeautifulSoup(res, 'html.parser')
-                print(soup.prettify())
-            else:
+            if isinstance(res, etree._ElementUnicodeResult):
                 print(res)
+            else:
+                print(etree.tostring(res, pretty_print=True).decode())
 
     def src(self, url):
         """Shows prettified html source,"""
