@@ -26,7 +26,7 @@ class ToolframeLoader(object):
         # import module
         module: ModuleType = getattr(__import__(f'{MODULES_DIR}.{name}'), name)
 
-        classname = ToolframeLoader._get_classname(name)
+        classname = self._get_classname(name)
 
         # if class named as {ModuleName} exists
         if hasattr(module, classname):
