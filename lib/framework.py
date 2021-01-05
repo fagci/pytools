@@ -1,5 +1,6 @@
 """Toolbox module loader"""
 import pkgutil
+from types import ModuleType
 
 MODULES_DIR = 'modules'
 
@@ -23,11 +24,21 @@ class ToolframeLoader(object):
             return super().__getattribute__(name)
 
         # import module
-        module = getattr(__import__(f'{MODULES_DIR}.{name}'), name)
+        module: ModuleType = getattr(__import__(f'{MODULES_DIR}.{name}'), name)
 
-        # then return Class to initialize by `fire` only if needeed
         classname = ToolframeLoader._get_classname(name)
-        return getattr(module, classname)
+
+        # if class named as {ModuleName} exists
+        if hasattr(module, classname):
+            # then return Class to initialize by `fire` only if needeed
+            return getattr(module, classname)
+
+        # if plain module without class, return module
+        # as routine with docstring from module (hack for `fire`)
+        def plain(): return module
+        plain.__doc__ = module.__doc__
+
+        return plain
 
     @staticmethod
     def _get_classname(module_name):
