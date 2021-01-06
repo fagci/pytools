@@ -3,8 +3,18 @@
 
 def randip():
     """Get wide range random IP"""
-    from random import randrange as rr
-    return f'{rr(1, 255)}.{rr(0, 255)}.{rr(0, 255)}.{rr(1,255)}'
+    from random import randrange
+    a = randrange(1, 255)
+    b = randrange(0, 255)
+    c = randrange(0, 255)
+    d = randrange(1, 255)
+    return '{}.{}.{}.{}'.format(a, b, c, d)
+
+
+def generate_ips(count: int):
+    """Get wide range random IPs"""
+    for _ in range(count):
+        yield randip()
 
 
 def local_ip():
