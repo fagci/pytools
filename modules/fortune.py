@@ -3,6 +3,7 @@
 
 from concurrent.futures import ThreadPoolExecutor
 from os.path import basename
+import socket as so
 
 from bs4 import BeautifulSoup
 from requests import get
@@ -22,12 +23,13 @@ class Fortune:
     @staticmethod
     def _check_rnd_ip(_):
         ip = randip()
+        with so.socket() as sock:
+            if sock.connect_ex((ip, 80)) != 0:
+                return False, ip, ''
         try:
-            response = get(f'http://{ip}', HEADERS, timeout=0.3)
-            if response:
-                bs = BeautifulSoup(response.content, 'lxml')
-                return True, ip, bs.title.string.strip()
-            return False, ip, '-'
+            response = get(f'http://{ip}', HEADERS, timeout=0.25)
+            bs = BeautifulSoup(response.content, 'html.parser')
+            return True, ip, bs.title.string.strip()
         except Exception as e:
             return False, ip, e
 
@@ -35,8 +37,10 @@ class Fortune:
         """Spins IP roulette and makes http requests
         Checks for http application title and print it if exists.
         """
+        so.setdefaulttimeout(0.2)
         create_tables()
         with ThreadPoolExecutor(t) as executor:
+            print('Using', getattr(executor, '_max_workers'), 'workers')
             results = []
             try:
                 iterator = executor.map(self._check_rnd_ip, range(ip_count))
