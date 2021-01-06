@@ -1,58 +1,46 @@
 #!/usr/bin/env python
 """Wide IP range actions."""
 
-from concurrent.futures import ThreadPoolExecutor
-from os.path import basename
-import socket as so
-
-from bs4 import BeautifulSoup
-from requests import get
-from tqdm import tqdm
-
-from lib.ip import randip
+from lib.ftp import check_anon
+from lib.http import check_http
+from lib.ip import generate_ips
 from lib.models import Fortune as FortuneModel
 from lib.models import create_tables
-
-
-HEADERS = {
-    'User-Agent': f'fagci_pytools_fortune/1.0 (Wide range IP http checker, see https://github.com/fagcinsk/pytools/blob/main/{basename(__file__)})'
-}
+from lib.scan import filter_ips, ips_with_port
 
 
 class Fortune:
     @staticmethod
-    def _check_rnd_ip(_):
-        ip = randip()
-        with so.socket() as sock:
-            if sock.connect_ex((ip, 80)) != 0:
-                return False, ip, ''
-        try:
-            response = get(f'http://{ip}', HEADERS, timeout=0.25)
-            bs = BeautifulSoup(response.content, 'html.parser')
-            return True, ip, bs.title.string.strip()
-        except Exception as e:
-            return False, ip, e
+    def ftp(ip_count=10000, t=None):
+        ips = generate_ips(ip_count)
 
-    def spin(self, ip_count=1000, t=None):
+        ftps = list(ips_with_port(ips, 21, workers=t, total=ip_count))
+
+        ftps_count = len(ftps)
+        print('Got', ftps_count, 'ips w ftp')
+
+        anons = list(filter_ips(ftps, check_anon, total=ftps_count))
+
+        for ip in anons:
+            print(ip)
+
+    @staticmethod
+    def http(ip_count=1000, t=None):
         """Spins IP roulette and makes http requests
         Checks for http application title and print it if exists.
         """
-        so.setdefaulttimeout(0.2)
         create_tables()
-        with ThreadPoolExecutor(t) as executor:
-            print('Using', getattr(executor, '_max_workers'), 'workers')
-            results = []
+
+        ips = generate_ips(ip_count)
+        ips = list(ips_with_port(ips, 80, workers=t, total=ip_count))
+
+        results = []
+        for _, ip, title in filter_ips(ips, check_http, t, ip_count):
             try:
-                iterator = executor.map(self._check_rnd_ip, range(ip_count))
-                for is_ok, ip, title in tqdm(iterator, unit='ip', total=ip_count):
-                    if is_ok:
-                        try:
-                            FortuneModel.create(ip=ip, title=title)
-                        except Exception as e:
-                            print(e)
-                        results.append((ip, title))
-            except KeyboardInterrupt:
-                print('Interrupted by user')
+                FortuneModel.create(ip=ip, title=title)
+            except Exception as e:
+                print(e)
+            results.append((ip, title))
 
         print(len(results), 'results')
         for ip, title in results:

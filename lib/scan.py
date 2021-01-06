@@ -1,17 +1,23 @@
 from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Iterable
 
+from tqdm import tqdm
+
 from lib.network import portchecker
 
 
-def ips_with_port(ips: Iterable, port: int, workers: int = None, timeout: float = 0.2, result_fn: Callable = lambda r: r):
+def ips_with_port(ips: Iterable, port: int, workers: int = None, timeout: float = 0.2, total=None):
     """Filter IPs by given port"""
     check_port = portchecker(port, timeout)
-    return filter_ips(ips, check_port, workers, result_fn)
+    return filter_ips(ips, check_port, workers, total)
 
 
-def filter_ips(ips: Iterable, filter_fn: Callable, workers: int = None, result_fn: Callable = lambda r: r):
+def filter_ips(ips: Iterable, filter_fn: Callable, workers: int = None, total=None):
     """Filter IPs by callable, which must return falsy value"""
     with ThreadPoolExecutor(workers) as executor:
-        ips = [ip for ip in result_fn(executor.map(filter_fn, ips)) if ip]
-        return ips
+        for result in tqdm(executor.map(filter_fn, ips), total=total, unit='ips'):
+            if isinstance(result, tuple):
+                if result[0]:
+                    yield result
+            elif result:
+                yield result
