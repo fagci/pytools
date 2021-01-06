@@ -10,32 +10,31 @@ from lib.scan import filter_ips, ips_with_port
 
 
 class Fortune:
-    @staticmethod
-    def ftp(ip_count=10000, t=None):
-        ips = generate_ips(ip_count)
+    def __init__(self, ips_count=5000, t=None) -> None:
+        create_tables()
+        self.ips = generate_ips(ips_count)
+        self.ips_count = ips_count
+        self.workers = t
 
-        ftps = list(ips_with_port(ips, 21, workers=t, total=ip_count))
+    def leave_ips(self, port: int):
+        print('[*] Making ips for', port, 'port')
+        self.ips = list(ips_with_port(
+            self.ips, port, self.workers, total=self.ips_count))
+        self.ips_count = len(self.ips)
+        print('Got', self.ips_count, 'ips for', port, 'port')
 
-        ftps_count = len(ftps)
-        print('Got', ftps_count, 'ips w ftp')
-
-        anons = list(filter_ips(ftps, check_anon, total=ftps_count))
+    def ftp(self):
+        self.leave_ips(21)
+        anons = list(filter_ips(self.ips, check_anon, total=self.ips_count))
 
         for ip in anons:
             print(ip)
 
-    @staticmethod
-    def http(ip_count=1000, t=None):
-        """Spins IP roulette and makes http requests
-        Checks for http application title and print it if exists.
-        """
-        create_tables()
-
-        ips = generate_ips(ip_count)
-        ips = list(ips_with_port(ips, 80, workers=t, total=ip_count))
+    def http(self):
+        self.leave_ips(80)
 
         results = []
-        for _, ip, title in filter_ips(ips, check_http, t, ip_count):
+        for _, ip, title in filter_ips(self.ips, check_http, self.workers, self.ips_count):
             try:
                 FortuneModel.create(ip=ip, title=title)
             except Exception as e:

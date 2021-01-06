@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from requests import get
 
 HEADERS = {
-    'User-Agent': f'fagci_pytools_fortune/1.0 (Wide range IP http checker, see https://github.com/fagcinsk/pytools/'
+    'User-Agent': f'fagci_pytools/1.0 (see https://github.com/fagcinsk/pytools/'
 }
 
 
