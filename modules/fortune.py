@@ -16,22 +16,24 @@ class Fortune:
         self.ips_count = ips_count
         self.workers = t
 
-    def leave_ips(self, port: int):
-        print('[*] Making ips for', port, 'port')
+    def _leave_ips(self, port: int):
+        print('[*] Gathering ips for', port, 'port')
         self.ips = list(ips_with_port(
             self.ips, port, self.workers, total=self.ips_count))
         self.ips_count = len(self.ips)
         print('Got', self.ips_count, 'ips for', port, 'port')
 
     def ftp(self):
-        self.leave_ips(21)
+        """Gather FTP hosts with anonymous access"""
+        self._leave_ips(21)
         anons = list(filter_ips(self.ips, check_anon, total=self.ips_count))
 
         for ip in anons:
             print(ip)
 
     def http(self):
-        self.leave_ips(80)
+        """Gather hosts with site on 80 port"""
+        self._leave_ips(80)
 
         results = []
         for _, ip, title in filter_ips(self.ips, check_http, self.workers, self.ips_count):
