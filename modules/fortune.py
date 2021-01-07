@@ -16,6 +16,12 @@ class Fortune:
         self.ips_count = ips_count
         self.workers = t
 
+    @staticmethod
+    def ip_list(count: int = 100):
+        """Generates list of random ips"""
+        for ip in generate_ips(count):
+            print(ip)
+
     def _leave_ips(self, port: int):
         print('[*] Gathering ips for', port, 'port')
         self.ips = list(ips_with_port(

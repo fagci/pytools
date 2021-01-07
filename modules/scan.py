@@ -4,8 +4,10 @@ import socket as so
 import sys
 from threading import Lock, Thread
 
+from lib.module import ToolframeModule
 
-class Scan:
+
+class Scan(ToolframeModule):
     """Various network scanners"""
 
     def __init__(self) -> None:
