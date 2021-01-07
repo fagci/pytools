@@ -10,6 +10,7 @@ from scapy.sendrecv import sniff, srp
 
 class Netroot:
     """Various network tools using raw sockets"""
+
     def __init__(self, iface='wlan0'):
         if os.geteuid() != 0:
             print('Need to be root')
@@ -18,7 +19,7 @@ class Netroot:
 
     def arp(self, ip):
         """Get MAC by ip"""
-        pkt =Ether(dst=ETHER_BROADCAST)/ARP(pdst=ip)
+        pkt = Ether(dst=ETHER_BROADCAST)/ARP(pdst=ip)
         ans, _ = srp(pkt, iface=self.iface, timeout=1)
         for p in ans:
             print(p[1][ARP].hwsrc)
@@ -26,8 +27,8 @@ class Netroot:
     @staticmethod
     def _on_packet(pkt: Packet):
         if pkt.haslayer(TCP):
-            ip:IP = pkt[IP]
-            tcp:TCP = pkt[TCP]
+            ip: IP = pkt[IP]
+            tcp: TCP = pkt[TCP]
             print('{}:{} => {}:{}'.format(ip.src, tcp.sport, ip.dst, tcp.dport))
 
     def sniff(self):
