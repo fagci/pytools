@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 """Wide IP range actions."""
 
-from lib.ftp import check_anon
-from lib.http import check_http
-from lib.ip import generate_ips
-from lib.models import Fortune as FortuneModel
-from lib.models import create_tables
-from lib.scan import filter_ips, ips_with_port
+from lib.pt_ftp import check_anon
+from lib.pt_http import check_http
+from lib.pt_ip import generate_ips
+from lib.pt_models import Fortune as FortuneModel
+from lib.pt_models import create_tables
+from lib.pt_scan import filter_ips, ips_with_port
 
 
 class Fortune:

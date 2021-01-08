@@ -3,7 +3,7 @@ from typing import Callable, Iterable
 
 from tqdm import tqdm
 
-from lib.network import portchecker
+from lib.pt_network import portchecker
 
 
 def ips_with_port(ips: Iterable, port: int, workers: int = None, timeout: float = 0.2, total=None):

@@ -2,7 +2,7 @@
 """Toolbox module executor"""
 import fire
 
-from lib.framework import ToolframeLoader
+from lib.pt_framework import ToolframeLoader
 
 
 if __name__ == "__main__":

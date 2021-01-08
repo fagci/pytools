@@ -1,4 +1,4 @@
-from lib.http import get_ttfb
+from lib.pt_http import get_ttfb
 
 
 class Http:

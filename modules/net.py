@@ -1,4 +1,4 @@
-from lib.ip import local_ip
+from lib.pt_ip import local_ip
 
 
 class Net:

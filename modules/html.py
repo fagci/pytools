@@ -5,6 +5,12 @@ from requests import get
 
 class Html:
     """HTML utilities"""
+    @staticmethod
+    def ahrefs(url):
+        """Get <a> hrefs related to domain"""
+        from lib.pt_html import get_page_ahrefs
+        for href in get_page_ahrefs(url):
+            print(href)
 
     def sel(self, url, selector):
         """Shows some part of source by selector

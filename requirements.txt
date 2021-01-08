@@ -1,6 +1,7 @@
 beautifulsoup4
 dnspython
 fire
+lxml
 peewee
 requests
 scapy

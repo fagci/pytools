@@ -4,7 +4,7 @@ import socket as so
 import sys
 from threading import Lock, Thread
 
-from lib.module import ToolframeModule
+from lib.pt_module import ToolframeModule
 
 
 class Scan(ToolframeModule):
