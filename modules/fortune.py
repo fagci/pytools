@@ -48,7 +48,7 @@ class Fortune:
         self._leave_ips(80)
 
         results = []
-        for _, ip, title in filter_ips(self.ips, check_http, self.workers, self.ips_count):
+        for _, ip, title in filter_ips(self.ips, check_http, total=self.ips_count):
             try:
                 FortuneModel.create(ip=ip, title=title)
             except Exception as e:
