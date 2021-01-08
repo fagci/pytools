@@ -13,3 +13,16 @@ def check_http(ip: str, timeout: float = 0.25):
         return True, ip, bs.title.string.strip()
     except Exception as e:
         return False, ip, e
+
+
+def idna2ascii(url):
+    """Converts unicode url to ascii"""
+    from urllib.parse import quote, urlsplit, urlunsplit
+    parts = urlsplit(url)
+    return urlunsplit((
+        parts.scheme,
+        parts.netloc.encode('idna').decode('ascii'),
+        quote(parts.path),
+        quote(parts.query, '='),
+        quote(parts.fragment),
+    ))
