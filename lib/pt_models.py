@@ -1,7 +1,7 @@
 """Database models to use with python tools"""
 from datetime import datetime
 
-from peewee import DateTimeField, Model, SqliteDatabase, TextField
+from peewee import DateTimeField, IntegerField, Model, SqliteDatabase, TextField
 
 db = SqliteDatabase('db.sqlite3')
 
@@ -12,12 +12,14 @@ class BaseModel(Model):
         database = db
 
 
-class Fortune(BaseModel):
-    """Model to store IPs with http server home page titles"""
+class FortuneIP(BaseModel):
+    """Storage of gathered IPs"""
     created_at = DateTimeField(default=datetime.now())
-    ip = TextField(primary_key=True)
-    title = TextField()
+    ip = TextField()
+    port = IntegerField()
+    title = TextField(null=True)
+    description = TextField(null=True)
 
 
 def create_tables():
-    db.create_tables([Fortune])
+    db.create_tables([FortuneIP])

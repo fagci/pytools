@@ -4,7 +4,7 @@
 from lib.pt_ftp import check_anon
 from lib.pt_http import check_http
 from lib.pt_ip import generate_ips
-from lib.pt_models import Fortune as FortuneModel
+from lib.pt_models import FortuneIP
 from lib.pt_models import create_tables
 from lib.pt_scan import filter_ips, ips_with_port
 
@@ -21,8 +21,13 @@ class Fortune:
         self._leave_ips_with_port(21)
         self._filter_service(check_anon)
 
-        for ip in self.ips:
+        for _, ip, title, description in self.ips:
             print(ip)
+            try:
+                FortuneIP.create(ip=ip, port=21, title=title,
+                                 description=description)
+            except Exception as e:
+                print(e)
 
     def http(self):
         """Gather hosts with site on 80 port"""
@@ -33,14 +38,14 @@ class Fortune:
         for _, ip, title in self.ips:
             print(f'{ip:<15} {title}')
             try:
-                FortuneModel.create(ip=ip, title=title)
+                FortuneIP.create(ip=ip, port=80, title=title)
             except Exception as e:
                 print(e)
 
     @staticmethod
     def list():
         """Get list of previous spins (ips with http title)"""
-        for item in FortuneModel.select().order_by(FortuneModel.title):
+        for item in FortuneIP.select().order_by(FortuneIP.title):
             print('{}\t{}'.format(item.ip, item.title))
 
     @staticmethod

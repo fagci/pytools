@@ -24,7 +24,8 @@ class ToolframeLoader(object):
             return super().__getattribute__(name)
 
         # import module
-        module: ModuleType = getattr(__import__(f'{MODULES_DIR}.{name}'), name)
+        module: ModuleType = getattr(__import__(
+            '{}.{}'.format(MODULES_DIR, name)), name)
 
         classname = self._get_classname(name)
 

@@ -15,29 +15,6 @@ class Scan(ToolframeModule):
         self.lock = Lock()
         self.results = []
 
-    @staticmethod
-    def _check_port(target: tuple):
-        with so.socket() as socket:  # tcp by default
-            return target if socket.connect_ex(target) == 0 else None
-
-    def _scan(self):
-        while True:
-            try:
-                result = self._check_port(self.queue.get())
-            except OSError as e:
-                print(e.strerror)
-                sys.exit(e.errno)
-            with self.lock:
-                if result:
-                    host, port = result
-                    try:
-                        serv = so.getservbyport(port, 'tcp')
-                    except:
-                        serv = ''
-                    self.results.append((host, port, serv))
-                    print(f'{port:<5} {serv}')
-            self.queue.task_done()
-
     def ports(self, host: str, p_start: int, p_end: int, t: int = 16):
         """Threaded port scanner
 
@@ -65,3 +42,26 @@ class Scan(ToolframeModule):
             self.queue.put((ip, port))
 
         self.queue.join()
+
+    @staticmethod
+    def _check_port(target: tuple):
+        with so.socket() as socket:  # tcp by default
+            return target if socket.connect_ex(target) == 0 else None
+
+    def _scan(self):
+        while True:
+            try:
+                result = self._check_port(self.queue.get())
+            except OSError as e:
+                print(e.strerror)
+                sys.exit(e.errno)
+            with self.lock:
+                if result:
+                    host, port = result
+                    try:
+                        serv = so.getservbyport(port, 'tcp')
+                    except:
+                        serv = ''
+                    self.results.append((host, port, serv))
+                    print(f'{port:<5} {serv}')
+            self.queue.task_done()
