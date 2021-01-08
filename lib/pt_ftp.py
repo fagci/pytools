@@ -6,6 +6,6 @@ def check_anon(ip: str) -> tuple:
     try:
         with FTP(ip, timeout=15.0) as ftp:
             ftp.login()
-            return (ip, ftp.getwelcome().splitlines(False)[0], ftp.dir())
+            return (True, ip, ftp.getwelcome().splitlines(False)[0], ftp.dir())
     except:
         return (False, None)
