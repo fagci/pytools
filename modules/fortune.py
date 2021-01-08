@@ -12,7 +12,6 @@ from lib.scan import filter_ips, ips_with_port
 class Fortune:
     def __init__(self, ips_count=5000, t=None) -> None:
         create_tables()
-        self.ips = generate_ips(ips_count)
         self.ips_count = ips_count
         self.workers = t
 
@@ -22,8 +21,13 @@ class Fortune:
         for ip in generate_ips(count):
             print(ip)
 
+    def _generate_ips(self):
+        print('[*] Generating', self.ips_count, 'ips...')
+        self.ips = generate_ips(self.ips_count)
+
     def _leave_ips(self, port: int):
-        print('[*] Gathering ips for', port, 'port')
+        print('[*] Gathering ips for', port, 'port using',
+              (self.workers or '[default]'), 'workers...')
         self.ips = list(ips_with_port(
             self.ips, port, self.workers, total=self.ips_count))
         self.ips_count = len(self.ips)
@@ -31,6 +35,7 @@ class Fortune:
 
     def ftp(self):
         """Gather FTP hosts with anonymous access"""
+        self._generate_ips()
         self._leave_ips(21)
         anons = list(filter_ips(self.ips, check_anon, total=self.ips_count))
 
@@ -39,6 +44,7 @@ class Fortune:
 
     def http(self):
         """Gather hosts with site on 80 port"""
+        self._generate_ips()
         self._leave_ips(80)
 
         results = []

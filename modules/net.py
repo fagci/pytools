@@ -1,5 +1,9 @@
 from lib.ip import local_ip
 
 
-def localip():
-    print(local_ip())
+class Net:
+    """Network tools"""
+    @staticmethod
+    def localip():
+        """Get local network IP"""
+        print(local_ip())
