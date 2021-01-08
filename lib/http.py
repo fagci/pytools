@@ -26,3 +26,15 @@ def idna2ascii(url):
         quote(parts.query, '='),
         quote(parts.fragment),
     ))
+
+
+def get_ttfb(url):
+    """Get time to first byte for url in ms"""
+    from time import time
+    from urllib.request import build_opener, Request
+    opener = build_opener()
+    req = Request(idna2ascii(url))
+    tim = time()
+    res = opener.open(req)
+    res.read(1)
+    return round((time() - tim) * 1000)
