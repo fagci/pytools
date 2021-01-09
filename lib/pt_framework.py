@@ -1,6 +1,4 @@
 """Toolbox module loader"""
-import pkgutil
-from types import ModuleType
 
 MODULES_DIR = 'modules'
 
@@ -11,14 +9,18 @@ class ToolframeLoader(object):
 
     def __init__(self):
         """Fill attributes to show as commands"""
+        import pkgutil
         for module in pkgutil.iter_modules([MODULES_DIR]):
             if not module.name.startswith('_'):
                 self._modules.append(module.name)
                 setattr(self, module.name, None)
 
     def _command_tree(self, c, level=0):
+        from colorama import Fore
+        colors = [Fore.LIGHTGREEN_EX,
+                  Fore.LIGHTBLUE_EX, Fore.LIGHTRED_EX, Fore.GREEN, Fore.BLUE]
         for member in self._get_members(c):
-            print('{}{}'.format('  '*level, member))
+            print('{}{}{}'.format(colors[level], '  '*level, member))
             if level < 5 and not callable(c):
                 self._command_tree(getattr(c, member), level + 1)
 
@@ -38,7 +40,7 @@ class ToolframeLoader(object):
             return super().__getattribute__(name)
 
         # import module
-        module: ModuleType = getattr(__import__(
+        module = getattr(__import__(
             '{}.{}'.format(MODULES_DIR, name)), name)
 
         classname = self._get_classname(name)
