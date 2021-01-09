@@ -53,7 +53,7 @@ class Fortune:
             print('{}\t{}'.format(item.ip, item.title))
 
     @staticmethod
-    def ip_list(count: int = 100):
+    def ips(count: int = 100):
         """Generates list of random ips"""
         for ip in generate_ips(count):
             print(ip)
