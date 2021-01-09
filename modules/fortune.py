@@ -43,9 +43,13 @@ class Fortune:
                 print(e)
 
     @staticmethod
-    def list():
+    def list(**kwargs):
         """Get list of previous spins (ips with http title)"""
-        for item in FortuneIP.select().order_by(FortuneIP.title):
+        items = FortuneIP.select()
+        if kwargs:
+            for k, v in kwargs.items():
+                items = items.where(getattr(FortuneIP, k) == v)
+        for item in items.order_by(FortuneIP.title):
             print('{}\t{}'.format(item.ip, item.title))
 
     @staticmethod

@@ -10,10 +10,11 @@ from lib.pt_module import ToolframeModule
 class Scan(ToolframeModule):
     """Various network scanners"""
 
-    def __init__(self) -> None:
-        self.queue = Queue()
-        self.lock = Lock()
-        self.results = []
+    def __init__(self):
+        super().__init__()
+        self._queue = Queue()
+        self._lock = Lock()
+        self._results = []
 
     def ports(self, host: str, p_start: int, p_end: int, t: int = 16):
         """Threaded port scanner
@@ -39,9 +40,9 @@ class Scan(ToolframeModule):
             Thread(target=self._scan, daemon=True).start()
 
         for port in ports:
-            self.queue.put((ip, port))
+            self._queue.put((ip, port))
 
-        self.queue.join()
+        self._queue.join()
 
     @staticmethod
     def _check_port(target: tuple):
@@ -51,17 +52,17 @@ class Scan(ToolframeModule):
     def _scan(self):
         while True:
             try:
-                result = self._check_port(self.queue.get())
+                result = self._check_port(self._queue.get())
             except OSError as e:
                 print(e.strerror)
                 sys.exit(e.errno)
-            with self.lock:
+            with self._lock:
                 if result:
                     host, port = result
                     try:
                         serv = so.getservbyport(port, 'tcp')
                     except:
                         serv = ''
-                    self.results.append((host, port, serv))
+                    self._results.append((host, port, serv))
                     print(f'{port:<5} {serv}')
-            self.queue.task_done()
+            self._queue.task_done()

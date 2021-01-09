@@ -17,7 +17,11 @@ class ToolframeLoader(object):
                 setattr(self, module.name, None)
 
     def __getattribute__(self, name):
-        """Get command (module) info from same named class"""
+        """Get command (module) info from same named class.
+
+        Loads module_name.ModuleName.run() if exists;
+        Loads module_name.ModuleName with public members;
+        Loads entire module_name if CamelCased class with module name not exists."""
 
         # default behavior if name is not module name
         if name == '_modules' or name not in self._modules:
@@ -36,6 +40,10 @@ class ToolframeLoader(object):
                 module_class.__doc__ = module.__doc__
             elif not module.__doc__:
                 module.__doc__ = module_class.__doc__
+
+            # support for short command, ex: pt ping
+            if hasattr(module_class, 'run'):
+                return module_class.run
 
             # then return Class to initialize by `fire` only if needeed
             return module_class
