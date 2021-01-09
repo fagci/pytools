@@ -1,6 +1,16 @@
 class Http:
     """HTTP related commands"""
     @staticmethod
+    def server(ip='127.0.0.1', port=8080):
+        import http.server
+        import socketserver
+        Handler = http.server.SimpleHTTPRequestHandler
+
+        with socketserver.TCPServer((ip, port), Handler) as httpd:
+            print("serving at port", port)
+            httpd.serve_forever()
+
+    @staticmethod
     def headers(url):
         from requests import get
         for key, val in iter(get(url).headers.items()):
