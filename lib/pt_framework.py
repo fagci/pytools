@@ -16,12 +16,15 @@ class ToolframeLoader(object):
                 self._modules.append(module.name)
                 setattr(self, module.name, None)
 
+    def _command_tree(self, c, level=0):
+        for member in self._get_members(c):
+            print('{}{}'.format('  '*level, member))
+            if level < 5 and not callable(c):
+                self._command_tree(getattr(c, member), level + 1)
+
     def commands(self):
         """List commands as tree"""
-        for member in self._get_members(self):
-            print('{}'.format(member))
-            for subm in self._get_members(getattr(self, member)):
-                print('  {}'.format(subm))
+        self._command_tree(self)
 
     def __getattribute__(self, name):
         """Get command (module) info from same named class.
