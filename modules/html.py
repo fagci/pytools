@@ -1,5 +1,3 @@
-from bs4 import BeautifulSoup
-from requests import get
 
 
 class Html:
@@ -37,9 +35,12 @@ class Html:
 
     @staticmethod
     def _soup(url):
+        from bs4 import BeautifulSoup
+        from requests import get
         return BeautifulSoup(get(url).text, 'html.parser')
 
     @staticmethod
     def _lxml(url):
         from lxml import html
+        from requests import get
         return html.fromstring(get(url).text)
