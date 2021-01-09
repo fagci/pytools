@@ -1,6 +1,3 @@
-from lib.pt_http import get_ttfb
-
-
 class Http:
     """HTTP related commands"""
     @staticmethod
@@ -12,6 +9,7 @@ class Http:
     @staticmethod
     def ttfb(url, c=4):
         """Measures more precisely than requests (- dns query) time to first byte for given url"""
+        from lib.pt_http import get_ttfb
         results = []
         for _ in range(c):
             ttfb = get_ttfb(url)

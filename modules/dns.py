@@ -1,24 +1,15 @@
-#!/usr/bin/env python
-from concurrent.futures import ThreadPoolExecutor
-from re import compile
-from time import time
-
-from dns.resolver import Answer, Resolver
-from requests import get
-from tqdm import tqdm
-
-
-ipv4_re = compile(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
-
-
 class Dns:
     """Perform DNS related actions"""
 
     def __init__(self):
-        self.ns_source = 'https://public-dns.info/nameservers.csv'
+        from re import compile
+        self._ipv4_re = compile(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
+        self._ns_source = 'https://public-dns.info/nameservers.csv'
 
     def _check(self, nameserver):
         """Check NS for condition timeout"""
+        from dns.resolver import Answer, Resolver
+        from time import time
 
         resolver = Resolver(configure=False)
         resolver.nameservers = [nameserver['ip_address']]
@@ -43,9 +34,11 @@ class Dns:
         self.domain_to_resolve = domain
 
         nameservers = self._get_nameservers()
+        from concurrent.futures import ThreadPoolExecutor
 
         with ThreadPoolExecutor() as executor:
             results = []
+            from tqdm import tqdm
             for res in tqdm(executor.map(self._check, nameservers), total=len(nameservers)):
                 if res.get('time'):
                     results.append(res)
@@ -63,12 +56,13 @@ class Dns:
         ip_address, name, as_number, as_org,
         country_code, city, version, error, dnssec,
         reliability, checked_at, created_at"""
+        from requests import get
 
-        lines = get(self.ns_source).text.splitlines(False)
+        lines = get(self._ns_source).text.splitlines(False)
         col_names = lines[0].split(',')
 
         items = []
-        is_ipv4 = ipv4_re.match
+        is_ipv4 = self._ipv4_re.match
         for line in lines[1:]:
             row = dict(zip(col_names, line.split(',')))
             ip = row['ip_address']

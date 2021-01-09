@@ -1,22 +1,21 @@
 #!/usr/bin/env python
 """Wide IP range actions."""
 
-from lib.pt_ftp import check_anon
-from lib.pt_http import check_http
 from lib.pt_ip import generate_ips
 from lib.pt_models import FortuneIP
-from lib.pt_models import create_tables
 from lib.pt_scan import filter_ips, ips_with_port
 
 
 class Fortune:
     def __init__(self, ips_count=5000, t=None) -> None:
+        from lib.pt_models import create_tables
         create_tables()
         self.ips_count = ips_count
         self.workers = t
 
     def ftp(self):
         """Gather FTP hosts with anonymous access"""
+        from lib.pt_ftp import check_anon
         self._generate_ips()
         self._leave_ips_with_port(21)
         self._filter_service(check_anon)
@@ -31,6 +30,7 @@ class Fortune:
 
     def http(self):
         """Gather hosts with site on 80 port"""
+        from lib.pt_http import check_http
         self._generate_ips()
         self._leave_ips_with_port(80)
         self._filter_service(check_http)

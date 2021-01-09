@@ -1,14 +1,3 @@
-#!/usr/bin/env python
-from concurrent.futures import ThreadPoolExecutor
-from csv import writer
-import sys
-from urllib.parse import urlparse
-
-import bs4
-import requests
-from requests.models import Response
-from tqdm import tqdm
-
 OK_CODES = [200]
 MAX_TTFB = 180
 TITLE_MIN_LENGTH = 20
@@ -46,11 +35,14 @@ class Seo:
                     self.checks[func[6:]] = fn
                     print(fn.__doc__.format(**globals()))
 
+        import sys
         sys.stderr.write('Check sitemap...\n')
         xml = self._get_page(self._get_response(sitemap_url))
         urls = [a.text for a in xml.find_all('loc')]
         total = len(urls)
         sys.stderr.write(f'found {total} urls\n')
+        from tqdm import tqdm
+        from concurrent.futures import ThreadPoolExecutor
 
         results = []
         with ThreadPoolExecutor(max_workers=t) as ex:
@@ -72,12 +64,12 @@ class Seo:
     # checks
 
     @staticmethod
-    def check_code(r: Response, _):
+    def check_code(r, _):
         """Response code must be in {OK_CODES}"""
         return r.status_code in OK_CODES, r.status_code
 
     @staticmethod
-    def check_ttfb(r: Response, _):
+    def check_ttfb(r, _):
         """Time to first byte must be < {MAX_TTFB}"""
         ttfb = r.elapsed.total_seconds() * 1000
         return ttfb < MAX_TTFB, ttfb
@@ -99,13 +91,16 @@ class Seo:
 
     @staticmethod
     def _get_response(url):
+        import requests
         return requests.get(url)
 
     @staticmethod
     def _get_page(response):
-        return bs4.BeautifulSoup(response.text, 'lxml')
+        from bs4 import BeautifulSoup
+        return BeautifulSoup(response.text, 'lxml')
 
     def _check(self, url):
+        from urllib.parse import urlparse
         response = self._get_response(url)
         page = self._get_page(response)
 
@@ -123,6 +118,7 @@ class Seo:
 
     @staticmethod
     def _write_csv(results, output):
+        from csv import writer
         w = writer(output)
         w.writerow(results[0].keys())
         for r in results:

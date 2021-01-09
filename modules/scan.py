@@ -1,8 +1,6 @@
 #!/usr/bin/env python
-from queue import Queue
 import socket as so
 import sys
-from threading import Lock, Thread
 
 from lib.pt_module import ToolframeModule
 
@@ -11,6 +9,8 @@ class Scan(ToolframeModule):
     """Various network scanners"""
 
     def __init__(self):
+        from threading import Lock
+        from queue import Queue
         super().__init__()
         self._queue = Queue()
         self._lock = Lock()
@@ -24,6 +24,7 @@ class Scan(ToolframeModule):
         p_end -- port to scan to (inclusive)
         t -- number of threads
         """
+        from threading import Thread
         so.setdefaulttimeout(1)
         try:
             ip = so.gethostbyname(host)

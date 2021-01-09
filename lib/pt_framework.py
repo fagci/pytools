@@ -16,6 +16,21 @@ class ToolframeLoader(object):
                 self._modules.append(module.name)
                 setattr(self, module.name, None)
 
+    @staticmethod
+    def _get_members(c):
+        members = {}
+        for member in c.__dict__.keys():
+            if not member.startswith('_'):
+                members[member] = getattr(c, member)
+        return members
+
+    def commands(self):
+        """List commands as tree"""
+        for member, c in self._get_members(self).items():
+            print('{}'.format(member))
+            for subm, sc in self._get_members(c).items():
+                print('  {}'.format(subm))
+
     def __getattribute__(self, name):
         """Get command (module) info from same named class.
 
