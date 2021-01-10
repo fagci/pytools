@@ -38,6 +38,9 @@
 <body>
 {% block page_body %}
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-2" role="navigation">
+            {% block brand %}
+                <a class="navbar-brand" href="{{ admin_view.admin.url }}">{{ admin_view.admin.name }}</a>
+            {% endblock %}
             <!-- Brand and toggle get grouped for better mobile display -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#admin-navbar-collapse"
                     aria-controls="admin-navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,9 +48,6 @@
             </button>
             <!-- navbar content -->
             <div class="collapse navbar-collapse" id="admin-navbar-collapse">
-            {% block brand %}
-                <a class="navbar-brand" href="{{ admin_view.admin.url }}">{{ admin_view.admin.name }}</a>
-            {% endblock %}
             {% block main_menu %}
                 <ul class="navbar-nav mr-auto">
                     {{ layout.menu() }}

@@ -1,0 +1,10 @@
+{% extends 'admin/base.html' %}
+{% block body %}
+{{ super() }}
+<div class="row">
+    <div class="col-sm-10 col-sm-offset-1">
+        <p>Module page. Not implemented.</p>
+        <a class="btn btn-link" href="{{url_for('admin.index')}}">Back</a>
+    </div>
+</div>
+{% endblock body %}

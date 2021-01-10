@@ -1,6 +1,9 @@
 """Toolbox module loader"""
 
 
+from flask_admin.base import BaseView
+
+
 MODULES_DIR = 'modules'
 
 
@@ -48,6 +51,12 @@ class ToolframeLoader(object):
             def index(self):
                 return self.render('admin/index.html', modules=modules)
 
+        class ModuleView(BaseView):
+            @expose('/')
+            @basic_auth.required
+            def index(self):
+                return self.render('admin/module.html', modules=modules)
+
         class PTModelView(ModelView):
             @basic_auth.required
             def is_accessible(self):
@@ -66,6 +75,8 @@ class ToolframeLoader(object):
             m = getattr(models, member)
             if isclass(m) and m is not models.BaseModel and issubclass(m, models.BaseModel):
                 admin.add_view(PTModelView(m))
+        for m in modules:
+            admin.add_view(ModuleView(m, 'modules', 'admin.' + m))
 
         app.run(host, port)
 
