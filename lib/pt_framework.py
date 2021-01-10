@@ -15,6 +15,25 @@ class ToolframeLoader(object):
                 self._modules.append(module.name)
                 setattr(self, module.name, None)
 
+    def commands(self):
+        """List commands as tree"""
+        self._command_tree(self)
+
+    @staticmethod
+    def admin(host='127.0.0.1', port=8888):
+        from flask import Flask, cli
+        from flask_admin import Admin
+        from flask_admin.contrib.peewee import ModelView
+
+        from lib.pt_models import FortuneIP
+
+        app = Flask(__name__)
+        cli.show_server_banner = lambda *_: None
+
+        admin = Admin(app, 'pytools admin', '/', template_mode='bootstrap4')
+        admin.add_view(ModelView(FortuneIP))
+        app.run(host, port)
+
     def _command_tree(self, c, level=0):
         from colorama import Fore
         colors = [Fore.LIGHTGREEN_EX,
@@ -23,10 +42,6 @@ class ToolframeLoader(object):
             print('{}{}{}'.format(colors[level], '  '*level, member))
             if level < 5 and not callable(c):
                 self._command_tree(getattr(c, member), level + 1)
-
-    def commands(self):
-        """List commands as tree"""
-        self._command_tree(self)
 
     def __getattribute__(self, name):
         """Get command (module) info from same named class.
