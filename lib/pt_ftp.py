@@ -8,4 +8,4 @@ def check_anon(ip: str) -> tuple:
             ftp.login()
             return (True, ip, ftp.getwelcome().splitlines(False)[0], ftp.dir())
     except:
-        return (False, None)
+        return (False, None, None, None)

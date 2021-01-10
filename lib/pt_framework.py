@@ -29,7 +29,8 @@ class ToolframeLoader(object):
         from flask_admin.contrib.peewee import ModelView
         from flask_basicauth import BasicAuth
 
-        from lib.pt_models import FortuneIP
+        import lib.pt_models as models
+        from inspect import isclass
 
         app = Flask(__name__, template_folder='../templates')
         app.config['BASIC_AUTH_USERNAME'] = user
@@ -57,7 +58,13 @@ class ToolframeLoader(object):
         def index():
             return render_template('index.html')
 
-        admin.add_view(PTModelView(FortuneIP))
+        for member in models.__dict__:
+            if member.startswith('_'):
+                continue
+            m = getattr(models, member)
+            if isclass(m) and m is not models.BaseModel and issubclass(m, models.BaseModel):
+                admin.add_view(PTModelView(m))
+
         app.run(host, port)
 
     def _command_tree(self, c, level=0):

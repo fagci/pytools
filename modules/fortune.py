@@ -21,7 +21,6 @@ class Fortune:
         self._filter_service(check_anon)
 
         for _, ip, title, description in self.ips:
-            print(ip)
             try:
                 FortuneIP.create(ip=ip, port=21, title=title,
                                  description=description)
