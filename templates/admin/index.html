@@ -1,10 +1,16 @@
-{% extends 'admin/master.html' %}
+{% extends 'admin/base.html' %}
 {% block body %}
 {{ super() }}
 <div class="container">
     <div class="row">
         <div class="col-sm-10 col-sm-offset-1">
             <h1>Flask-Admin example</h1>
+            <p>Existing modules:</p>
+            <ul>
+                {% for module in modules %}
+                    <li>{{module}}</li>
+                {% endfor %}
+            </ul>
             <a class="btn btn-link" href="/">Go Home</a>
         </div>
     </div>

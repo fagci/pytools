@@ -19,7 +19,9 @@ class Http:
     @staticmethod
     def ttfb(url, c=4):
         """Measures more precisely than requests (- dns query) time to first byte for given url"""
+        from statistics import mean
         from lib.pt_http import get_ttfb
+
         results = []
         for _ in range(c):
             ttfb = get_ttfb(url)
@@ -27,4 +29,4 @@ class Http:
             print('{} ms'.format(ttfb))
         print('=' * 30)
         print('min: {} max: {} mid: {}'.format(min(results),
-                                               max(results), sum(results) / len(results)))
+                                               max(results), mean(results)))
