@@ -2,6 +2,9 @@ beautifulsoup4
 colorama==0.3.7
 dnspython
 fire
+flask
+flask-admin
+flask-basicauth
 lxml
 peewee
 requests

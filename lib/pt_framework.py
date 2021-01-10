@@ -1,5 +1,6 @@
 """Toolbox module loader"""
 
+
 MODULES_DIR = 'modules'
 
 
@@ -9,29 +10,54 @@ class ToolframeLoader(object):
 
     def __init__(self):
         """Fill attributes to show as commands"""
-        import pkgutil
-        for module in pkgutil.iter_modules([MODULES_DIR]):
-            if not module.name.startswith('_'):
-                self._modules.append(module.name)
-                setattr(self, module.name, None)
+        from pkgutil import iter_modules
+        for module in iter_modules([MODULES_DIR]):
+            if module.name.startswith('_'):
+                continue
+            self._modules.append(module.name)
+            setattr(self, module.name, None)
 
     def commands(self):
         """List commands as tree"""
         self._command_tree(self)
 
     @staticmethod
-    def admin(host='127.0.0.1', port=8888):
-        from flask import Flask, cli
-        from flask_admin import Admin
+    def admin(host='127.0.0.1', port=8888, user='admin', password='ptpass'):
+        """Runs web interface"""
+        from flask import Flask, cli, render_template
+        from flask_admin import Admin, BaseView, expose, AdminIndexView
         from flask_admin.contrib.peewee import ModelView
+        from flask_basicauth import BasicAuth
 
         from lib.pt_models import FortuneIP
 
-        app = Flask(__name__)
+        app = Flask(__name__, template_folder='../templates')
+        app.config['BASIC_AUTH_USERNAME'] = user
+        app.config['BASIC_AUTH_PASSWORD'] = password
+
+        basic_auth = BasicAuth(app)
+
+        class IndexView(AdminIndexView):
+            @expose('/')
+            @basic_auth.required
+            def index(self):
+                return self.render('admin/index.html')
+
+        class PTModelView(ModelView):
+            @basic_auth.required
+            def is_accessible(self):
+                return super().is_accessible()
+
         cli.show_server_banner = lambda *_: None
 
-        admin = Admin(app, 'pytools admin', '/', template_mode='bootstrap4')
-        admin.add_view(ModelView(FortuneIP))
+        admin = Admin(app, 'PyTools admin',
+                      template_mode='bootstrap4', index_view=IndexView())
+
+        @app.route('/')
+        def index():
+            return render_template('index.html')
+
+        admin.add_view(PTModelView(FortuneIP))
         app.run(host, port)
 
     def _command_tree(self, c, level=0):
