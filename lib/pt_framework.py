@@ -27,6 +27,7 @@ class ToolframeLoader(object):
     def admin(self, host='127.0.0.1', port=8888, user='admin', password='ptpass'):
         """Runs web interface"""
         from inspect import isclass
+        import secrets
 
         from flask import Flask, cli, render_template
         from flask_admin import Admin, expose, AdminIndexView
@@ -40,6 +41,8 @@ class ToolframeLoader(object):
         app = Flask(__name__, template_folder='../templates')
         app.config['BASIC_AUTH_USERNAME'] = user
         app.config['BASIC_AUTH_PASSWORD'] = password
+        secret_key = secrets.token_hex(16)
+        app.config['SECRET_KEY'] = secret_key
 
         basic_auth = BasicAuth(app)
 
@@ -75,6 +78,19 @@ class ToolframeLoader(object):
             m = getattr(models, member)
             if isclass(m) and m is not models.BaseModel and issubclass(m, models.BaseModel):
                 admin.add_view(PTModelView(m))
+
+        try:
+            import local.models as local_models
+
+            for member in local_models.__dict__:
+                if member.startswith('_'):
+                    continue
+                m = getattr(local_models, member)
+                if isclass(m) and m is not local_models.BaseModel and issubclass(m, local_models.BaseModel):
+                    admin.add_view(PTModelView(m))
+        except:
+            pass
+
         for m in modules:
             admin.add_view(ModuleView(m, 'modules', 'admin.' + m))
 
@@ -116,7 +132,7 @@ class ToolframeLoader(object):
 
             # support for short command, ex: pt ping
             if hasattr(module_class, 'run'):
-                return module_class.run
+                return module_class().run
 
             # then return Class to initialize by `fire` only if needeed
             return module_class

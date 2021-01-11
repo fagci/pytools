@@ -1,6 +1,7 @@
 beautifulsoup4
 colorama==0.3.7
 dnspython
+python-dotenv
 fire
 flask
 flask-admin
@@ -10,3 +11,5 @@ peewee
 requests
 scapy
 tqdm
+yandex-search
+wtf-peewee
