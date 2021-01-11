@@ -1,3 +1,4 @@
+from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Iterable
 
@@ -31,19 +32,15 @@ def filter_ips2(ips: Iterable, filter_fn: Callable, workers: int = None, total=N
     qin = Queue()
     qout = Queue()
     pb = tqdm(total=total, unit='ips')
+    ips_i = iter(ips)
 
     def proc():
         while True:
             ip = qin.get()
-            if ip is None:
-                qout.put(None)
-                qin.task_done()
-                pb.close()
-                break
             with lock:
                 pb.update(1)
-
             result = filter_fn(ip)
+
             if isinstance(result, tuple):
                 if result[0]:
                     qout.put(result)
@@ -52,21 +49,27 @@ def filter_ips2(ips: Iterable, filter_fn: Callable, workers: int = None, total=N
 
             qin.task_done()
 
-    for ip in ips:
-        qin.put(ip)
+    def putter():
+        while True:
+            try:
+                ip = next(ips_i)
+                qin.put(ip)
+            except StopIteration:
+                break
+    p = Thread(target=putter, daemon=True)
+    p.start()
 
-    qin.put(None)
+    threads = [Thread(target=proc) for _ in range(workers or 16)]
 
-    for _ in range(workers or 16):
-        thr = Thread(target=proc)
+    for thr in threads:
         thr.daemon = True
         thr.start()
 
-    while True:
+    while any(map(lambda t: t.is_alive(), threads)):
         try:
-            res = qout.get()
-            if res is None:
-                break
+            res = qout.get(timeout=0.1)
+            qout.task_done()
             yield res
         except Empty:
             break
+    pb.close()
