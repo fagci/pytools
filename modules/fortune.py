@@ -3,7 +3,7 @@
 
 from lib.pt_ip import generate_ips
 from lib.pt_models import FortuneIP
-from lib.pt_scan import filter_ips, ips_with_port
+from lib.pt_scan import filter_ips2, ips_with_port
 
 
 class Fortune:
@@ -71,6 +71,6 @@ class Fortune:
 
     def _filter_service(self, fn):
         print('[*] Filtering service:', self.ips_count, 'ips...')
-        self.ips = list(filter_ips(self.ips, fn, total=self.ips_count))
+        self.ips = list(filter_ips2(self.ips, fn, total=self.ips_count))
         self.ips_count = len(self.ips)
         print('Got', self.ips_count, 'ips.')
