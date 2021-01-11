@@ -1,76 +1,82 @@
 class Admin():
     def __init__(self, modules):
-        self._modules = modules
-
-    def run(self, host='127.0.0.1', port=8888, user='admin', password='ptpass'):
-        """Runs web interface"""
-        from inspect import isclass
+        print('[*] Init flask...')
         import secrets
-
         from flask import Flask, cli, render_template
-        from flask_admin import Admin, expose, AdminIndexView
-        from flask_admin.contrib.peewee import ModelView
         from flask_basicauth import BasicAuth
-        from flask_admin.base import BaseView
+        from flask_admin import Admin, expose, AdminIndexView
 
-        import lib.pt_models as models
-
+        self._modules = modules
+        self._app = Flask(__name__, template_folder='../templates')
         cli.show_server_banner = lambda *_: None
-
-        app = Flask(__name__, template_folder='../templates')
-        app.config['BASIC_AUTH_USERNAME'] = user
-        app.config['BASIC_AUTH_PASSWORD'] = password
         secret_key = secrets.token_hex(16)
-        app.config['SECRET_KEY'] = secret_key
+        self._app.config['SECRET_KEY'] = secret_key
+        self._basic_auth = BasicAuth(self._app)
 
-        basic_auth = BasicAuth(app)
-
-        modules = self._modules
-
-        class IndexView(AdminIndexView):
-            @expose('/')
-            @basic_auth.required
-            def index(self):
-                return self.render('admin/index.html', modules=modules)
-
-        class ModuleView(BaseView):
-            @expose('/')
-            @basic_auth.required
-            def index(self):
-                return self.render('admin/module.html', modules=modules)
-
-        class PTModelView(ModelView):
-            @basic_auth.required
-            def is_accessible(self):
-                return super().is_accessible()
-
-        admin = Admin(app, 'PyTools admin',
-                      template_mode='bootstrap4', index_view=IndexView(), base_template='admin/base.html')
-
-        @app.route('/')
+        @self._app.route('/')
         def index():
             return render_template('index.html')
 
-        for member in models.__dict__:
-            if member.startswith('_'):
-                continue
-            m = getattr(models, member)
-            if isclass(m) and m is not models.BaseModel and issubclass(m, models.BaseModel):
-                admin.add_view(PTModelView(m))
+        class IndexView(AdminIndexView):
+            @expose('/')
+            @self._basic_auth.required
+            def index(self):
+                return self.render('admin/index.html', modules=modules)
+        self._admin = Admin(self._app, 'PyTools admin',
+                            template_mode='bootstrap4', index_view=IndexView(), base_template='admin/base.html')
+
+    def run(self, host='127.0.0.1', port=8888, user='admin', password='ptpass'):
+        """Runs web interface"""
+
+        print('[*] Init admin...')
+
+        self._app.config['BASIC_AUTH_USERNAME'] = user
+        self._app.config['BASIC_AUTH_PASSWORD'] = password
+
+        self._load_models()
+        self._load_modules()
+
+        print('[*] Running server...')
+        self._app.run(host, port)
+
+    def _load_modules(self):
+        print('[*] Load modules...')
+        from flask_admin import expose
+        from flask_admin.base import BaseView
+
+        class ModuleView(BaseView):
+            @expose('/')
+            @self._basic_auth.required
+            def index(self):
+                return self.render('admin/module.html', modules=self._modules)
+
+        for m in self._modules:
+            self._admin.add_view(ModuleView(m, 'modules', 'admin.' + m))
+
+    def _load_models(self):
+        print('[*] Load models...')
+        import lib.pt_models as models
+        self._load_models_from_module(models)
 
         try:
             import local.models as local_models
-
-            for member in local_models.__dict__:
-                if member.startswith('_'):
-                    continue
-                m = getattr(local_models, member)
-                if isclass(m) and m is not local_models.BaseModel and issubclass(m, local_models.BaseModel):
-                    admin.add_view(PTModelView(m))
+            self._load_models_from_module(local_models)
         except:
             pass
 
-        for m in modules:
-            admin.add_view(ModuleView(m, 'modules', 'admin.' + m))
+    def _load_models_from_module(self, module):
+        print('[*] Load model {}...'.format(module.__name__))
+        from inspect import isclass
+        from flask_admin.contrib.peewee import ModelView
 
-        app.run(host, port)
+        class PTModelView(ModelView):
+            @self._basic_auth.required
+            def is_accessible(self):
+                return super().is_accessible()
+
+        for member in module.__dict__:
+            if member.startswith('_'):
+                continue
+            m = getattr(module, member)
+            if isclass(m) and m is not module.BaseModel and issubclass(m, module.BaseModel):
+                self._admin.add_view(PTModelView(m))

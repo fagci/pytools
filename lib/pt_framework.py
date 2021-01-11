@@ -42,7 +42,7 @@ class ToolframeLoader(object):
 
         module = self._modules.get(name)
         if module:
-            return self._modules.get(name)
+            return module
 
         module = self._get_module(name)
         self._modules[name] = module
