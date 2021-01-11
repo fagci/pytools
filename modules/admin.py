@@ -51,7 +51,7 @@ class Admin():
                 return self.render('admin/module.html', modules=self._modules)
 
         for m in self._modules:
-            self._admin.add_view(ModuleView(m, 'modules', 'admin.' + m))
+            self._admin.add_view(ModuleView(m, 'Modules', 'admin.' + m))
 
     def _load_models(self):
         print('[*] Load models...')
@@ -79,4 +79,4 @@ class Admin():
                 continue
             m = getattr(module, member)
             if isclass(m) and m is not module.BaseModel and issubclass(m, module.BaseModel):
-                self._admin.add_view(PTModelView(m))
+                self._admin.add_view(PTModelView(m, category='Models'))
