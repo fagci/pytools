@@ -2,62 +2,76 @@
 
 My various handy tools written in Python.
 
-For example: port scanner, fast dns server finder, HTML source prettifier with selector usage, example site SEO checker.
-
-Toolset uses `fire` module to start tools and my microframework to use with fire, see `./pt` or `python pt` for tools list and short descriptions.
+Toolset uses `fire` module to start tools and my microframework to use with fire.  
+See `./pt` or `python pt` for tools list and short descriptions.
 
 ## Tools included by 2021-01-12
 
-```
-admin
-:Runs web interface
+### admin
 
-cht
-:Get cheat, example: python named tuple
+Runs web interface
 
-dns
-:Perform DNS related actions
-  fastest
+### cht
 
-fortune
-:Wide IP range actions.
-  ftp
-  http
-  list
-  ips
+Get cheat, example: python named tuple
 
-html
-:HTML utilities
-  ahrefs
-  sel
-  xpath
-  src
+### dns
 
-http
-:HTTP related commands
-  server
-  headers
-  ttfb
+Perform DNS related actions
 
-net
-:Network tools
-  localip
+- fastest
 
-netroot
-:Various network tools using raw sockets
-  arp
-  sniff
+### fortune
 
-scan
-:Various network scanners
-  ports
+Wide IP range actions.
 
-seo
-:SEO tools
-  all
-  sitemap
-```
+- ftp
+- http
+- list
+- ips
 
+### html
+
+HTML utilities
+
+- ahrefs
+- sel
+- xpath
+- src
+
+### http
+
+HTTP related commands
+
+- server
+- headers
+- ttfb
+
+### net
+
+Network tools
+
+- localip
+
+### netroot
+
+Various network tools using raw sockets
+
+- arp
+- sniff
+
+### scan
+
+Various network scanners
+
+- ports
+
+### seo
+
+SEO tools
+
+- all
+- sitemap
 
 ## Some usage examples
 
