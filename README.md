@@ -4,6 +4,8 @@
 
 Handy tools written in Python.
 
+[Usage](#usage) ∙ [Examples](#examples) ∙ [Requirements](#install)
+
 __Purpose:__
 
 - web development
@@ -35,7 +37,7 @@ _Tools included by 2021-01-12._
 PyTools uses `fire` module to start tools and my microframework to use with fire.  
 See `./pt` or `python pt` for tools list and short descriptions.
 
-## Some usage examples
+## Examples
 
 _Click/tap to view outputs._
 
