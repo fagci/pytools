@@ -56,6 +56,7 @@ def filter_ips2(ips: Iterable, filter_fn: Callable, workers: int = None, total=N
                 qin.put(ip)
             except StopIteration:
                 break
+
     p = Thread(target=putter, daemon=True)
     p.start()
 
