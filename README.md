@@ -6,8 +6,10 @@ Handy tools written in Python.
 
 __Purpose:__ web development helpers, pentesting, data analysis and modification.
 
-PyTools uses local `.gitignore`d `sqlite` database to store scan results for example.  
-Also admin interface `./pt admin` (user: `admin`, password: `ptpass` by default) can help you perform some actions in future.
+PyTools stores process results, for ex.: scan results to analyze them later.
+
+Also admin interface can help you perform some actions in future:  
+`./pt admin` (user: `admin`, password: `ptpass` by default) 
 
 ## Tools included by 2021-01-12
 
