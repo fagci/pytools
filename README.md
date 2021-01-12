@@ -11,7 +11,9 @@ PyTools stores process results, for ex.: scan results to analyze them later.
 Also admin interface can help you perform some actions in future:  
 `./pt admin` (user: `admin`, password: `ptpass` by default) 
 
-## Tools included by 2021-01-12
+## Usage
+
+_Tools included by 2021-01-12_
 
 |Command|Description|Functions|
 |---|---|---|
@@ -116,3 +118,7 @@ Use tools carefully. Some of them can be harmful. Check source code first.
 Run it with according permissions from network/system administrator or ISP if needeed.
 
 I am not responsible for your bad usage of this tools.
+
+## License
+
+[MIT License](/LICENSE)
