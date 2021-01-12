@@ -4,6 +4,11 @@
 
 My various handy tools written in Python.
 
+Purpose: web development helpers, pentesting, data analysis and modification.
+
+Tools uses local (.gitignore'd) database to store scan results for example.  
+Also admin interface `./pt admin` (user: `admin`, password: `ptpass` by default) can help you perform some actions in future.
+
 Toolset uses `fire` module to start tools and my microframework to use with fire.  
 See `./pt` or `python pt` for tools list and short descriptions.
 
@@ -40,17 +45,11 @@ pip install -r requirements.txt
 
 ## Tools structure
 
-### Modules
-
-Each module is command with functions. [More info](/modules).
-
-### Lib
-
-PyTools libraries to make code clean & reusable.
-
-### Local
-
-For now here can be your custom models named models.py ... and other stuff, which will not pushed to repo.
+|Directory|Description|
+|---|---|
+|[modules](/modules)|Each module is command with functions. [More info](/modules)|
+|[lib](/lib)|PyTools libraries to make code clean & reusable|
+|[local](/local)|For now here can be your custom models named models.py ... and other stuff, which will not pushed to repo.|
 
 ## :exclamation: Caution
 
