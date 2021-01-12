@@ -29,7 +29,7 @@ class Seo:
         """
         self.checks = {}
         for func in dir(self):
-            if func.startswith('check_'):
+            if func.startswith('_check_'):
                 fn = getattr(self, func)
                 if callable(fn):
                     self.checks[func[6:]] = fn
@@ -64,24 +64,24 @@ class Seo:
     # checks
 
     @staticmethod
-    def check_code(r, _):
+    def _check_code(r, _):
         """Response code must be in {OK_CODES}"""
         return r.status_code in OK_CODES, r.status_code
 
     @staticmethod
-    def check_ttfb(r, _):
+    def _check_ttfb(r, _):
         """Time to first byte must be < {MAX_TTFB}"""
         ttfb = r.elapsed.total_seconds() * 1000
         return ttfb < MAX_TTFB, ttfb
 
     @staticmethod
-    def check_len_title(_, p):
+    def _check_len_title(_, p):
         """Title length must be {TITLE_MIN_LENGTH} < x < {TITLE_MAX_LENGTH}"""
         tlen = len(p.title.text)
         return TITLE_MIN_LENGTH < tlen < TITLE_MAX_LENGTH, tlen
 
     @staticmethod
-    def check_len_desc(_, p):
+    def _check_len_desc(_, p):
         """Description length must be {DESCRIPTION_MIN_LENGTH} < x < {DESCRIPTION_MAX_LENGTH}"""
         d = p.find('meta', {'name': 'description'}).get('content')
         dlen = len(d)

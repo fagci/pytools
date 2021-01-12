@@ -1,12 +1,30 @@
 class Admin():
     def __init__(self, modules):
+        self._modules = modules
+
+    def run(self, host='127.0.0.1', port=8888, user='admin', password='ptpass'):
+        """Runs web interface"""
+
+        self._init_flask()
+
+        print('[*] Init admin...')
+
+        self._app.config['BASIC_AUTH_USERNAME'] = user
+        self._app.config['BASIC_AUTH_PASSWORD'] = password
+
+        self._load_models()
+        self._load_modules()
+
+        print('[*] Running server...')
+        self._app.run(host, port)
+
+    def _init_flask(self):
         print('[*] Init flask...')
         import secrets
         from flask import Flask, cli, render_template
         from flask_basicauth import BasicAuth
         from flask_admin import Admin, expose, AdminIndexView
 
-        self._modules = modules
         self._app = Flask(__name__, template_folder='../templates')
         cli.show_server_banner = lambda *_: None
         secret_key = secrets.token_hex(16)
@@ -21,23 +39,9 @@ class Admin():
             @expose('/')
             @self._basic_auth.required
             def index(self):
-                return self.render('admin/index.html', modules=modules)
+                return self.render('admin/index.html', modules=self._modules)
         self._admin = Admin(self._app, 'PyTools admin',
                             template_mode='bootstrap4', index_view=IndexView(), base_template='admin/base.html')
-
-    def run(self, host='127.0.0.1', port=8888, user='admin', password='ptpass'):
-        """Runs web interface"""
-
-        print('[*] Init admin...')
-
-        self._app.config['BASIC_AUTH_USERNAME'] = user
-        self._app.config['BASIC_AUTH_PASSWORD'] = password
-
-        self._load_models()
-        self._load_modules()
-
-        print('[*] Running server...')
-        self._app.run(host, port)
 
     def _load_modules(self):
         print('[*] Load modules...')

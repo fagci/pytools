@@ -6,6 +6,39 @@ For example: port scanner, fast dns server finder, HTML source prettifier with s
 
 Toolset uses `fire` module to start tools and my microframework to use with fire, see `./pt` or `python pt` for tools list and short descriptions.
 
+## Tools included by 2021-01-12
+
+```
+admin
+cht
+dns
+  fastest
+fortune
+  ftp
+  http
+  list
+  ips
+html
+  ahrefs
+  sel
+  xpath
+  src
+http
+  server
+  headers
+  ttfb
+net
+  localip
+netroot
+  arp
+  sniff
+scan
+  ports
+seo
+  all
+  sitemap
+yatop
+```
 
 ## Usage
 
