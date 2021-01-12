@@ -16,18 +16,23 @@ class ToolframeLoader(object):
             self._modules[module.name] = None
             setattr(self, module.name, None)
 
-    def commands(self):
+    def commands(self, verbose=False):
         """List commands as tree"""
-        self._command_tree(self)
+        self._command_tree(self, verbose)
 
-    def _command_tree(self, c, level=0):
+    def _command_tree(self, c, verbose, level=0):
         from colorama import Fore
         colors = [Fore.LIGHTGREEN_EX,
                   Fore.LIGHTBLUE_EX, Fore.LIGHTRED_EX, Fore.GREEN, Fore.BLUE]
         for member in self._get_members(c):
+            if level == 0:
+                print()
             print('{}{}{}'.format(colors[level], '  '*level, member))
             if level < 5 and not callable(c):
-                self._command_tree(getattr(c, member), level + 1)
+                m = getattr(c, member)
+                if verbose and m.__doc__:
+                    print(':{}{}'.format('  '*(level), m.__doc__))
+                self._command_tree(m, verbose, level + 1)
 
     def __getattribute__(self, name):
         """Get command (module) info from same named class.
