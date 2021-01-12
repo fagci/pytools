@@ -4,7 +4,11 @@
 
 Handy tools written in Python.
 
-__Purpose:__ web development helpers, pentesting, data analysis and modification.
+__Purpose:__
+
+- web development
+- pentesting
+- data analysis and modification
 
 PyTools stores process results, for ex.: scan results to analyze them later.
 
@@ -13,7 +17,7 @@ Also admin interface can help you perform some actions in future:
 
 ## Usage
 
-_Tools included by 2021-01-12_
+_Tools included by 2021-01-12._
 
 |Command|Description|Functions|
 |---|---|---|
@@ -32,6 +36,8 @@ PyTools uses `fire` module to start tools and my microframework to use with fire
 See `./pt` or `python pt` for tools list and short descriptions.
 
 ## Some usage examples
+
+_Click/tap to view outputs._
 
 <details>
   <summary>./pt html ahrefs</summary>
@@ -97,13 +103,17 @@ Got 28 ips.
   ```
 </details>
 
-## Prerequisites
+## Install
+
+_Installation not needeed, only get required packages:_
 
 ```sh
 pip install -r requirements.txt
 ```
 
-## Tools structure
+## PyTools structure
+
+_Important directories to know:_
 
 |Directory|Description|
 |---|---|
