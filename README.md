@@ -1,4 +1,4 @@
-# pytools
+# PyTools
 
 <img align="right" src="pytools.jpeg" alt="fagci python tools">
 
@@ -37,6 +37,20 @@ See `./pt` or `python pt` for tools list and short descriptions.
 ```sh
 pip install -r requirements.txt
 ```
+
+## Tools structure
+
+### Modules
+
+Each module is command with functions. [More info](/modules).
+
+### Lib
+
+PyTools libraries to make code clean & reusable.
+
+### Local
+
+For now here can be your custom models named models.py ... and other stuff, which will not pushed to repo.
 
 ## :exclamation: Caution
 
