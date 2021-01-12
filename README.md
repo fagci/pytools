@@ -2,15 +2,12 @@
 
 <img align="right" src="pytools.jpeg" alt="fagci python tools">
 
-My various handy tools written in Python.
+Handy tools written in Python.
 
-Purpose: web development helpers, pentesting, data analysis and modification.
+__Purpose:__ web development helpers, pentesting, data analysis and modification.
 
-Tools uses local (.gitignore'd) database to store scan results for example.  
+PyTools uses local `.gitignore`d `sqlite` database to store scan results for example.  
 Also admin interface `./pt admin` (user: `admin`, password: `ptpass` by default) can help you perform some actions in future.
-
-Toolset uses `fire` module to start tools and my microframework to use with fire.  
-See `./pt` or `python pt` for tools list and short descriptions.
 
 ## Tools included by 2021-01-12
 
@@ -26,6 +23,9 @@ See `./pt` or `python pt` for tools list and short descriptions.
 |netroot|Various network tools using raw sockets|arp, sniff|
 |scan|Various network scanners|ports|
 |seo|SEO tools|all, sitemap|
+
+PyTools uses `fire` module to start tools and my microframework to use with fire.  
+See `./pt` or `python pt` for tools list and short descriptions.
 
 ## Some usage examples
 
