@@ -53,7 +53,7 @@ def filter_ips2(ips: Iterable, filter_fn: Callable, workers: int = None, total=N
         while True:
             try:
                 ip = next(ips_i)
-                qin.put(ip)
+                qin.put_nowait(ip)
             except StopIteration:
                 break
 
@@ -68,9 +68,11 @@ def filter_ips2(ips: Iterable, filter_fn: Callable, workers: int = None, total=N
 
     while any(map(lambda t: t.is_alive(), threads)):
         try:
-            res = qout.get(timeout=2)
-            qout.task_done()
-            yield res
+            yield qout.get(timeout=1)
         except Empty:
             break
+
+    while not qout.empty():
+        yield qout.get()
+
     pb.close()
