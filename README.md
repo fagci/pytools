@@ -59,10 +59,14 @@ seo
 ```
 
 
-## Usage
+## Some usage examples
 
 ```sh
 ./pt dns fastest
+```
+
+```sh
+./pt fortune http --t=120 --ips_count=1000
 ```
 
 ## Prerequisites
