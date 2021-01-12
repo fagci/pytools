@@ -14,9 +14,9 @@ See `./pt` or `python pt` for tools list and short descriptions.
 |admin|Runs web interface||
 |cht|Get cheat, example: python named tuple||
 |dns|Perform DNS related actions|fastest|
-|fortune|Wide IP range actions.|ftp, http, list, ips|
+|fortune|Wide IP range actions|ftp, http, list, ips|
 |html|HTML utilities|ahrefs, sel, xpath, src|
-|http|HTTP related commands|server,headers,ttfb|
+|http|HTTP related commands|server, headers, ttfb|
 |net|Network tools|localip|
 |netroot|Various network tools using raw sockets|arp, sniff|
 |scan|Various network scanners|ports|
