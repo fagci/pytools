@@ -68,7 +68,7 @@ def filter_ips2(ips: Iterable, filter_fn: Callable, workers: int = None, total=N
 
     while any(map(lambda t: t.is_alive(), threads)):
         try:
-            res = qout.get(timeout=5)
+            res = qout.get(timeout=2)
             qout.task_done()
             yield res
         except Empty:
