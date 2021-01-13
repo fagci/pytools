@@ -106,9 +106,9 @@ class Seo:
     @staticmethod
     def _check_headings(_, p):
         """Validate html"""
-        from re import compile
+        import re
         headings = []
-        for h in p.find_all(compile('^h[1-6]$')):
+        for h in p.find_all(re.compile('^h[1-6]$')):
             tag = h.name
             headings.append('{}{}: {}'.format('  '*int(tag[1:]), tag, h.text))
 
