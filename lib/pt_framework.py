@@ -81,7 +81,8 @@ class ToolframeLoader(object):
 
         # if plain module without class, return module
         # as routine with docstring from module (hack for `fire`)
-        def plain(): return module
+        def plain():
+            return module
         plain.__doc__ = module.__doc__
 
         return plain
