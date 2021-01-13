@@ -43,16 +43,21 @@ class Seo:
         sys.stderr.write(f'found {total} urls\n')
         from tqdm import tqdm
         from concurrent.futures import ThreadPoolExecutor
+        from urllib.parse import urlparse
+        from lib.pt_models import SEOSession, SEOCheckResult, create_tables
+
+        create_tables()
+
+        parsed_url = urlparse(sitemap_url)
+        base_url = '{}://{}'.format(parsed_url.scheme, parsed_url.netloc)
+        seo_session = SEOSession.create(
+            base_url=base_url, options={'workers': t})
 
         results = []
         with ThreadPoolExecutor(max_workers=t) as ex:
             for r in tqdm(ex.map(self._check, urls), total=total, unit='url'):
                 results.append(r)
-                # print(r.get('path'))
-                # for k, v in r.items():
-                #     if k == 'path':
-                #         continue
-                #     print(f'  {k}: {v}')
+                SEOCheckResult.create(session=seo_session, **r)
 
         if o:
             with open(o, 'w') as output:
@@ -66,26 +71,57 @@ class Seo:
     @staticmethod
     def _check_code(r, _):
         """Response code must be in {OK_CODES}"""
-        return r.status_code in OK_CODES, r.status_code
+        return {'code_ok': r.status_code in OK_CODES, 'code': r.status_code}
 
     @staticmethod
     def _check_ttfb(r, _):
         """Time to first byte must be < {MAX_TTFB}"""
-        ttfb = r.elapsed.total_seconds() * 1000
-        return ttfb < MAX_TTFB, ttfb
+        ttfb = int(r.elapsed.total_seconds() * 1000)
+        return {'ttfb_ok': ttfb < MAX_TTFB, 'ttfb': ttfb}
 
     @staticmethod
     def _check_len_title(_, p):
         """Title length must be {TITLE_MIN_LENGTH} < x < {TITLE_MAX_LENGTH}"""
-        tlen = len(p.title.text)
-        return TITLE_MIN_LENGTH < tlen < TITLE_MAX_LENGTH, tlen
+        title_tag = p.title
+        title = title_tag.text if title_tag else ''
+        tlen = len(title)
+        return {
+            'title_ok': TITLE_MIN_LENGTH < tlen < TITLE_MAX_LENGTH,
+            'title_len': tlen,
+            'title_text': title
+        }
 
     @staticmethod
     def _check_len_desc(_, p):
         """Description length must be {DESCRIPTION_MIN_LENGTH} < x < {DESCRIPTION_MAX_LENGTH}"""
-        d = p.find('meta', {'name': 'description'}).get('content')
+        desc_tag = p.find('meta', {'name': 'description'})
+        d = desc_tag.get('content') if desc_tag else ''
         dlen = len(d)
-        return DESCRIPTION_MIN_LENGTH < dlen < DESCRIPTION_MAX_LENGTH, dlen
+        return {
+            'desc_ok': DESCRIPTION_MIN_LENGTH < dlen < DESCRIPTION_MAX_LENGTH,
+            'desc_len': dlen,
+            'desc_text': d
+        }
+
+    @staticmethod
+    def _check_headings(_, p):
+        """Validate html"""
+        from re import compile
+        headings = []
+        for h in p.find_all(compile('^h[1-6]$')):
+            tag = h.name
+            headings.append('{}{}: {}'.format('  '*int(tag[1:]), tag, h.text))
+
+        return {
+            'headings': '\n'.join(headings),
+        }
+
+    @staticmethod
+    def _check_validity(_, p):
+        """Validate html"""
+        return {
+            'validation': '',
+        }
 
     # /checks
 
@@ -108,11 +144,11 @@ class Seo:
         path = f'{p_url.path}?{p_url.query}' if p_url.query else p_url.path
 
         result = {
-            'path': path,
+            'url': path,
         }
 
-        for check_name, fn in self.checks.items():
-            result[check_name] = fn(response, page)
+        for _, fn in self.checks.items():
+            result = {**result, **fn(response, page)}
 
         return result
 

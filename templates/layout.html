@@ -1,0 +1,52 @@
+{% import 'admin/layout.html' as layout with context -%}
+{% extends 'admin/base.html' %} 
+
+{% block head_tail %}
+{{ super() }}
+<style>
+html {
+    font-size: 95%;
+}
+body, .layout-container-content {
+    height: 100vh;
+}
+.mh0 {
+    min-height:0;
+}
+.sidebar {
+    min-width: 186px;
+}
+th {
+  position: sticky;
+  top: 0px;
+  background-color: #fff;
+}
+</style>
+{% endblock %}
+
+{% block page_body %}
+
+<div class="layout-container-content d-flex flex-fill flex-column">
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <button class="btn btn-link navbar-brand" type="button" data-toggle="collapse" data-target="#sidebar" aria-expanded="false" aria-controls="collapseExample">
+    <i class="fa fa-bars"></i>
+  </button>
+    {% block brand %}<a class="navbar-brand" href="{{ admin_view.admin.url }}">{{ admin_view.admin.name }}</a>{% endblock %}
+    </nav>
+    
+    <div class="d-flex d-flex-fill flex-grow-1 mh0">
+            <nav class="bg-light sidebar p-2 border-right collapse" id="sidebar">
+                <ul class="nav flex-column">
+                    {{ layout.menu() }}
+                    {{ layout.menu_links() }}
+                </ul>
+            </nav>
+            
+            <main class="d-flex flex-fill flex-column overflow-auto">
+                {{ layout.messages() }}
+                    {% set render_ctx = h.resolve_ctx() %} 
+                    {% block body %}{% endblock %}
+            </main>
+    </div>
+</div>
+{% endblock %}

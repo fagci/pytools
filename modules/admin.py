@@ -11,6 +11,7 @@ class Admin():
 
         self._app.config['BASIC_AUTH_USERNAME'] = user
         self._app.config['BASIC_AUTH_PASSWORD'] = password
+        self._app.config['FLASK_ADMIN_SWATCH'] = 'cosmo'
 
         self._load_models()
         self._load_modules()
@@ -30,6 +31,7 @@ class Admin():
         secret_key = secrets.token_hex(16)
         self._app.config['SECRET_KEY'] = secret_key
         self._basic_auth = BasicAuth(self._app)
+        modules = self._modules
 
         @self._app.route('/')
         def index():
@@ -39,22 +41,24 @@ class Admin():
             @expose('/')
             @self._basic_auth.required
             def index(self):
-                return self.render('admin/index.html', modules=self._modules)
+                return self.render('admin/index.html', modules=modules)
         self._admin = Admin(self._app, 'PyTools admin',
-                            template_mode='bootstrap4', index_view=IndexView(), base_template='admin/base.html')
+                            template_mode='bootstrap4', index_view=IndexView(), base_template='layout.html')
 
     def _load_modules(self):
         print('[*] Load modules...')
         from flask_admin import expose
         from flask_admin.base import BaseView
 
+        modules = self._modules
+
         class ModuleView(BaseView):
             @expose('/')
             @self._basic_auth.required
             def index(self):
-                return self.render('admin/module.html', modules=self._modules)
+                return self.render('admin/module.html', modules=modules)
 
-        for m in self._modules:
+        for m in modules:
             self._admin.add_view(ModuleView(m, 'Modules', 'admin.' + m))
 
     def _load_models(self):
@@ -74,6 +78,14 @@ class Admin():
         from flask_admin.contrib.peewee import ModelView
 
         class PTModelView(ModelView):
+            def __init__(self, *args, **kwargs):
+                model = args[0]
+                kw = model._admin if hasattr(model, '_admin') else None
+                if kw:
+                    for k, v in kw.items():
+                        setattr(self, k, v)
+                super().__init__(*args, **kwargs)
+
             @self._basic_auth.required
             def is_accessible(self):
                 return super().is_accessible()
