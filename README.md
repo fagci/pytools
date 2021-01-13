@@ -17,6 +17,8 @@ PyTools stores process results, for ex.: scan results to analyze them later.
 Also admin interface can help you perform some actions in future:  
 `./pt admin` (user: `admin`, password: `ptpass` by default) 
 
+[![CodeFactor](https://www.codefactor.io/repository/github/fagcinsk/pytools/badge)](https://www.codefactor.io/repository/github/fagcinsk/pytools)
+
 ## Usage
 
 _Tools included by 2021-01-12._
