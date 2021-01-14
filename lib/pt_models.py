@@ -1,8 +1,9 @@
 """Database models to use with python tools"""
+import pymorphy2
 from datetime import datetime
 from flask.helpers import url_for
 
-from peewee import BooleanField, DateTimeField, ForeignKeyField, IntegerField, Model, SqliteDatabase, TextField
+from peewee import BooleanField, CharField, DateTimeField, ForeignKeyField, IntegerField, Model, SqliteDatabase, TextField
 from playhouse.mysql_ext import JSONField
 from flask_admin.contrib.peewee.filters import FilterEqual
 from markupsafe import Markup
@@ -14,6 +15,35 @@ class BaseModel(Model):
     """Base model to use database"""
     class Meta:
         database = db
+
+# Create user model.
+
+
+class User(BaseModel):
+    first_name = CharField(100, null=True)
+    last_name = CharField(100, null=True)
+    login = CharField(80, unique=True)
+    email = CharField(120)
+    password = CharField(64)
+
+    def get_id(self):
+        return self.id
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    # Required for administrative interface
+    def __unicode__(self):
+        return '{} {} <{}>'.format(self.first_name, self.last_name, self.email)
 
 
 class FortuneIP(BaseModel):
@@ -59,6 +89,8 @@ ICON_OK = '<i class="fa fa-check"></i>'
 ICON_FAIL = '<i class="fa fa-close text-danger"></i>'
 ICON_TITLE = '<div title="{}">{}</div>'
 
+morph = pymorphy2.MorphAnalyzer()
+
 
 class SEOCheckResult(BaseModel):
     """One url results of SEO check session"""
@@ -77,15 +109,57 @@ class SEOCheckResult(BaseModel):
     desc_text = TextField()
     headings = TextField()
     validation = TextField()
+    comment = TextField()
+
+    @property
+    def words(self):
+        from collections import Counter
+        import re
+        from stop_words import get_stop_words
+
+        # todo: fix by lang preference
+        stop_words = get_stop_words('ru') + get_stop_words('en')
+        title_lemmas = []
+        string = '{} {}'.format(self.title_text, self.desc_text).lower()
+        words = re.findall(r'\w+', string)
+
+        for word in words:
+            if word in stop_words:
+                continue
+            lemmas = morph.parse(word)
+            if lemmas:
+                title_lemmas.append(lemmas[0].normal_form)
+        counts = Counter(title_lemmas)
+
+        return Markup('<br />'.join(['{}: {}'.format(k, v) for k, v in counts.items() if v > 1]))
 
     _admin = {
         # flask-admin ModelView attributes
-        'can_edit': False,
+        'can_edit': True,
+        # 'edit_modal': True,
         'can_create': False,
         'can_delete': False,
         'can_view_details': True,
         'page_size': '250',
         'named_filter_urls': True,
+        'column_editable_list': ('comment',),
+        'column_list': (
+            'url',
+            'code_ok',
+            'code',
+            'ttfb_ok',
+            'ttfb',
+            'title_ok',
+            'title_len',
+            'title_text',
+            'desc_ok',
+            'desc_len',
+            'desc_text',
+            'headings',
+            'validation',
+            'comment',
+            'words',
+        ),
         'column_exclude_list': ('code', 'created_at', 'id', 'validation', 'ttfb', 'code', 'title_len', 'desc_len'),
         'column_filters': [
             FilterEqual(column=SEOSession.id, name='Session ID')
@@ -104,4 +178,4 @@ class SEOCheckResult(BaseModel):
 
 
 def create_tables():
-    db.create_tables([FortuneIP, SEOSession, SEOCheckResult])
+    db.create_tables([User, FortuneIP, SEOSession, SEOCheckResult])

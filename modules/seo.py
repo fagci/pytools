@@ -117,10 +117,12 @@ class Seo:
         }
 
     @staticmethod
-    def _check_validity(_, p):
+    def _check_validity(r, _):
         """Validate html"""
+        from tidylib import tidy_document
+        _, errors = tidy_document(r.text, options={'numeric-entities': 1})
         return {
-            'validation': '',
+            'validation': errors,
         }
 
     # /checks
