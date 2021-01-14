@@ -23,8 +23,7 @@ SEO_LANG = os.getenv('SEO_LANG') or 'ru'
 db = SqliteDatabase('db.sqlite3')
 morph = pymorphy2.MorphAnalyzer(lang=SEO_LANG)
 
-# todo: fix by lang preference
-stop_words = get_stop_words('ru') + get_stop_words(SEO_LANG)
+stop_words = get_stop_words(SEO_LANG)
 
 
 class BaseModel(Model):
