@@ -7,7 +7,7 @@ flask-admin
 flask-login
 lxml
 peewee
-pymorphy2[fast]
+pymorphy2
 python-dotenv
 pytidylib
 requests

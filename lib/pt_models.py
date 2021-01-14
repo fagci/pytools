@@ -99,7 +99,7 @@ class SEOCheckResult(BaseModel):
     desc_text = TextField()
     headings = TextField()
     validation = TextField()
-    comment = TextField()
+    comment = TextField(null=True)
 
     @property
     def words(self):
@@ -114,7 +114,10 @@ class SEOCheckResult(BaseModel):
         for word in words:
             if word in stop_words:
                 continue
-            results = morph.parse(word)
+            try:
+                results = morph.parse(word)
+            except Exception as e:
+                return e
             if results:
                 result = results[0]
                 title_lemmas.append(getattr(result, 'normal_form'))
