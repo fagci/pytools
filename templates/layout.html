@@ -31,7 +31,7 @@ th {
         <button class="btn btn-link navbar-brand" type="button" data-toggle="collapse" data-target="#sidebar" aria-expanded="false" aria-controls="collapseExample">
     <i class="fa fa-bars"></i>
   </button>
-    {% block brand %}<a class="navbar-brand" href="{{ admin_view.admin.url }}">{{ admin_view.admin.name }}</a>{% endblock %}
+  {% block brand %}<a class="navbar-brand" href="{{ admin_view.admin.url }}">{{ admin_view.admin.name }} :: {{admin_view.name|capitalize}}</a>{% endblock %}
     </nav>
     
     <div class="d-flex d-flex-fill flex-grow-1 mh0">

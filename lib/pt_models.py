@@ -1,19 +1,36 @@
 """Database models to use with python tools"""
-import pymorphy2
 from datetime import datetime
+import os
 
-from peewee import BooleanField, CharField, DateTimeField, ForeignKeyField, IntegerField, Model, SqliteDatabase, TextField
+from peewee import (
+    BooleanField,
+    CharField,
+    DateTimeField,
+    ForeignKeyField,
+    IntegerField,
+    Model,
+    SqliteDatabase,
+    TextField,
+)
 from playhouse.mysql_ext import JSONField
+import pymorphy2
+from stop_words import get_stop_words
+from dotenv import load_dotenv
+
+load_dotenv()
+SEO_LANG = os.getenv('SEO_LANG') or 'ru'
 
 db = SqliteDatabase('db.sqlite3')
+morph = pymorphy2.MorphAnalyzer(lang=SEO_LANG)
+
+# todo: fix by lang preference
+stop_words = get_stop_words('ru') + get_stop_words(SEO_LANG)
 
 
 class BaseModel(Model):
     """Base model to use database"""
     class Meta:
         database = db
-
-# Create user model.
 
 
 class User(BaseModel):
@@ -25,7 +42,7 @@ class User(BaseModel):
     is_admin = BooleanField(default=False)
 
     def get_id(self):
-        return self.id
+        return getattr(self, 'id')
 
     @property
     def is_authenticated(self):
@@ -63,10 +80,7 @@ class SEOSession(BaseModel):
     def view(self):
         from flask import Markup
         from flask.helpers import url_for
-        return Markup('<a href="{}">GO!</a>'.format(url_for('seocheckresult.index_view')+'?flt1_session_id_equals=' + str(self.id)))
-
-
-morph = pymorphy2.MorphAnalyzer()
+        return Markup('<a href="{}">GO!</a>'.format(url_for('seocheckresult.index_view')+'?flt1_session_id_equals=' + str(getattr(self, 'id'))))
 
 
 class SEOCheckResult(BaseModel):
@@ -92,11 +106,8 @@ class SEOCheckResult(BaseModel):
     def words(self):
         from collections import Counter
         import re
-        from stop_words import get_stop_words
-        from markupsafe import Markup
+        from flask import Markup
 
-        # todo: fix by lang preference
-        stop_words = get_stop_words('ru') + get_stop_words('en')
         title_lemmas = []
         string = '{} {}'.format(self.title_text, self.desc_text).lower()
         words = re.findall(r'\w+', string)
@@ -104,12 +115,14 @@ class SEOCheckResult(BaseModel):
         for word in words:
             if word in stop_words:
                 continue
-            lemmas = morph.parse(word)
-            if lemmas:
-                title_lemmas.append(lemmas[0].normal_form)
-        counts = Counter(title_lemmas)
+            results = morph.parse(word)
+            if results:
+                result = results[0]
+                title_lemmas.append(getattr(result, 'normal_form'))
 
-        return Markup('<br />'.join(['{}: {}'.format(k, v) for k, v in counts.items() if v > 1]))
+        counts = Counter(title_lemmas).most_common()
+
+        return Markup('<br />'.join(['{}: {}'.format(k, v) for k, v in counts if v > 1]))
 
 
 def create_tables():
