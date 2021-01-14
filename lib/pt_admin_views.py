@@ -65,9 +65,7 @@ class PTModelView(ModelView):
 class UserView(PTModelView):
     def is_accessible(self):
         import flask_login as login
-        from lib.pt_models import User  # todo: rm linkage
-        print(login.current_user.is_admin)
-        return super().is_accessible()
+        return super().is_accessible() and hasattr(login.current_user, 'is_admin') and login.current_user.is_admin
 
 
 class SEOSessionView(PTModelView):

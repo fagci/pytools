@@ -1,5 +1,5 @@
 beautifulsoup4
-colorama==0.3.7
+colorama
 dnspython
 fire
 flask

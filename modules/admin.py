@@ -1,6 +1,3 @@
-import os
-
-
 class Admin():
     def __init__(self, modules):
         self._modules = modules
@@ -28,6 +25,7 @@ class Admin():
 
         self._app = Flask(__name__, template_folder='../templates')
         cli.show_server_banner = lambda *_: None
+        import os
         self._app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'Ih4v3s3cr'
 
         @self._app.route('/')
