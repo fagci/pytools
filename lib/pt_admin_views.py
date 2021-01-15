@@ -32,6 +32,8 @@ def _cols_check_mark(attr_bool, attr_val):
 
 
 class IndexView(AdminIndexView):
+    def is_visible(self):
+        return False
 
     @expose('/')
     def index(self):

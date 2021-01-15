@@ -21,12 +21,23 @@ class Admin():
 
     def _init_flask(self):
         print('[*] Init flask...')
-        from flask import Flask, cli, render_template
+        import os
+        from flask import Flask, cli, render_template, request, session
+        from flask_babelex import Babel
 
         self._app = Flask(__name__, template_folder='../templates')
         cli.show_server_banner = lambda *_: None
-        import os
         self._app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'Ih4v3s3cr'
+
+        babel = Babel(self._app, default_locale='en')
+        print(babel.list_translations())
+
+        @babel.localeselector
+        def get_locale():
+            # if request.args.get('lang'):
+            #     session['lang'] = request.args.get('lang')
+            # return session.get('lang', 'ru')
+            return request.accept_languages.best_match(['ru', 'en'])
 
         @self._app.route('/')
         def index():
@@ -73,6 +84,7 @@ class Admin():
         print('[*] Load modules...')
         from flask_admin import expose
         from flask_admin.base import BaseView
+        from flask_babelex import lazy_gettext as gettext
 
         modules = self._modules
 
@@ -82,21 +94,23 @@ class Admin():
                 return self.render('admin/module.html', modules=modules)
 
         for m in modules:
-            self._admin.add_view(ModuleView(m, 'Modules', 'admin.' + m))
+            self._admin.add_view(ModuleView(
+                m, gettext('Modules'), 'admin.' + m))
 
     def _load_models(self):
         print('[*] Load models...')
         from lib.pt_models import SEOSession, SEOCheckResult, User
         from lib.pt_admin_views import SEOSessionView, SEOCheckResultView, UserView, SEOResultSummaryView
+        from flask_babelex import lazy_gettext as gettext
 
         self._admin.add_view(SEOSessionView(
-            SEOSession, name='Sessions', category='SEO'))
+            SEOSession, name=gettext('Sessions'), category='SEO'))
         self._admin.add_view(SEOCheckResultView(
-            SEOCheckResult, name='Results', category='SEO'))
+            SEOCheckResult, name=gettext('Results'), category='SEO'))
         self._admin.add_view(SEOResultSummaryView(
-            name='Summary', category='SEO'))
+            name=gettext('Summary'), category='SEO'))
         self._admin.add_view(
-            UserView(User, name='Users', category='Administration'))
+            UserView(User, name=gettext('Users'), category=gettext('Administration')))
 
         try:
             import local.models as local_models
@@ -108,10 +122,12 @@ class Admin():
         print('[*] Load model {}...'.format(module.__name__))
         from inspect import isclass
         from lib.pt_admin_views import PTModelView
+        from flask_babelex import lazy_gettext as gettext
 
         for member in module.__dict__:
             if member.startswith('_'):
                 continue
             m = getattr(module, member)
             if isclass(m) and m is not module.BaseModel and issubclass(m, module.BaseModel):
-                self._admin.add_view(PTModelView(m, category='Models'))
+                self._admin.add_view(PTModelView(
+                    m, category=gettext('Models')))

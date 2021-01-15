@@ -1,0 +1,73 @@
+# Russian translations for PROJECT.
+# Copyright (C) 2021 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2021-01-16 04:37+0700\n"
+"PO-Revision-Date: 2021-01-16 04:38+0700\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: ru\n"
+"Language-Team: ru <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.0\n"
+
+#: lib/pt_admin_forms.py:15
+msgid "Invalid user or password"
+msgstr "Неверный логин или пароль"
+
+#: lib/pt_admin_forms.py:24
+msgid "Login"
+msgstr "Логин"
+
+#: lib/pt_admin_forms.py:25
+msgid "Email"
+msgstr "Email"
+
+#: lib/pt_admin_forms.py:27
+msgid "Password"
+msgstr "Пароль"
+
+#: lib/pt_admin_forms.py:32
+msgid "Duplicate username"
+msgstr "Такой пользователь уже есть"
+
+#: modules/admin.py:99
+msgid "Modules"
+msgstr "Модули"
+
+#: modules/admin.py:108
+msgid "Sessions"
+msgstr "Проверки"
+
+#: modules/admin.py:110
+msgid "Results"
+msgstr "Результаты"
+
+#: modules/admin.py:112
+msgid "Summary"
+msgstr "Сводка"
+
+#: modules/admin.py:114
+msgid "Users"
+msgstr "Пользователи"
+
+#: modules/admin.py:114
+msgid "Administration"
+msgstr "Администрирование"
+
+#: modules/admin.py:134
+msgid "Models"
+msgstr "Модели"
+
+#: templates/admin/index.html:26
+msgid "Submit"
+msgstr "Отправить"
+

@@ -1,6 +1,73 @@
 {% import 'admin/layout.html' as layout with context -%}
 {% extends 'admin/base.html' %} 
 
+{% macro menu(menu_root=None) %}
+  {% set is_main_nav = menu_root == None %}
+  {% if menu_root is none %}{% set menu_root = admin_view.admin.menu() %}{% endif %}
+  {%- for item in menu_root %}
+    {%- if item.is_category() -%}
+      {% set children = item.get_children() %}
+      {%- if children %}
+        {% set class_name = item.get_class_name() or '' %}
+        {%- if item.is_active(admin_view) %}
+          <li class="nav-item active{% if class_name %} {{ class_name }}{% endif %}">
+            {% else -%}
+          <li class="nav-item{% if class_name %} {{ class_name }}{% endif %}">
+        {%- endif %}
+      <b class="nav-link">
+        {% if item.class_name %}<span class="{{ item.class_name }}"></span> {% endif %}
+        {{ layout.menu_icon(item) }}{{ item.name }}
+      </b>
+      <ul class="nav flex-column mb-2">
+        {%- for child in children -%}
+          {%- if child.is_category() -%}
+            {{ menu(menu_root=[child]) }}
+          {% else %}
+            {% set class_name = child.get_class_name() %}
+            <li class="nav-item{% if class_name %} {{ class_name }}{% endif %}">
+              {%- if child.is_active(admin_view) %}
+                <a class="nav-link active" href="{{ child.get_url() }}"{% if child.target %}
+                   target="{{ child.target }}"{% endif %}>
+                  {{ layout.menu_icon(child) }}{{ child.name }}</a>
+              {% else %}
+                <a class="nav-link" href="{{ child.get_url() }}"{% if child.target %}
+                   target="{{ child.target }}"{% endif %}>
+                  {{ layout.menu_icon(child) }}{{ child.name }}</a>
+              {%- endif %}
+            </li>
+          {%- endif %}
+        {%- endfor %}
+      </ul>
+      </li>
+      {% endif %}
+    {%- else %}
+      {%- if item.is_accessible() and item.is_visible() -%}
+        {% set class_name = item.get_class_name() %}
+        {%- if item.is_active(admin_view) %}
+          <li class="active{% if class_name %} {{ class_name }}{% endif %}">
+            {%- else %}
+          <li class="nav-item {% if class_name %} {{ class_name }}{% endif %}">
+        {%- endif %}
+      <a class="nav-link" href="{{ item.get_url() }}"{% if item.target %} target="{{ item.target }}"{% endif %}>
+        {{ layout.menu_icon(item) }}{{ item.name }}</a>
+      </li>
+      {%- endif -%}
+    {% endif -%}
+  {% endfor %}
+{% endmacro %}
+
+{% macro menu_links(links=None) %}
+  {% if links is none %}{% set links = admin_view.admin.menu_links() %}{% endif %}
+  {% for item in links %}
+    {% set class_name = item.get_class_name() %}
+    {% if item.is_accessible() and item.is_visible() %}
+      <li{% if class_name %} class="{{ class_name }}"{% endif %}>
+        <a class="nav-link" href="{{ item.get_url() }}">{{ menu_icon(item) }}{{ item.name }}</a>
+      </li>
+    {% endif %}
+  {% endfor %}
+{% endmacro %}
+
 {% block head_tail %}
 {{ super() }}
 <style>
@@ -14,13 +81,43 @@ body, .layout-container-content {
     min-height:0;
 }
 .sidebar {
+    width: 186px;
     min-width: 186px;
+    height: auto !important;
+    transform: translateX(-100%);
+    transition: transform 150ms ease-in;
 }
 th {
-  position: sticky;
-  top: -1px;
-  background-color: #fff;
+    position: sticky;
+    top: -1px;
+    background-color: #fff;
 }
+
+.collapsing {
+    transition: transform 150ms ease-in;
+}
+
+.collapse.show {
+    transform: translateX(0);
+}
+
+.custom-scrollbar {
+  overflow-y: scroll;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #eee;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 1rem;
+  background-color: #888;
+}
+
 </style>
 {% endblock %}
 
@@ -28,25 +125,31 @@ th {
 
 <div class="layout-container-content d-flex flex-fill flex-column">
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-        <button class="btn btn-link navbar-brand" type="button" data-toggle="collapse" data-target="#sidebar" aria-expanded="false" aria-controls="collapseExample">
-    <i class="fa fa-bars"></i>
-  </button>
-  {% block brand %}<a class="navbar-brand" href="{{ admin_view.admin.url }}">{{ admin_view.admin.name }} :: {{admin_view.name|capitalize}}</a>{% endblock %}
+        <button class="btn btn-link navbar-brand collapsed" type="button" data-toggle="collapse" data-target="#sidebar" aria-expanded="false">
+            <i class="fa fa-bars"></i>
+        </button>
+        {% block brand %}
+        <a class="navbar-brand" href="{{ admin_view.admin.url }}">{{ admin_view.admin.name }}</a>
+        <span class="navbar-brand">{{admin_view.name|capitalize}}</span>
+        {% endblock %}
     </nav>
-    
+
     <div class="d-flex d-flex-fill flex-grow-1 mh0">
-            <nav class="bg-light sidebar p-2 border-right collapse" id="sidebar">
-                <ul class="nav flex-column">
-                    {{ layout.menu() }}
-                    {{ layout.menu_links() }}
-                </ul>
-            </nav>
-            
-            <main class="d-flex flex-fill flex-column overflow-auto">
-                {{ layout.messages() }}
-                    {% set render_ctx = h.resolve_ctx() %} 
-                    {% block body %}{% endblock %}
-            </main>
+        <nav class="bg-light sidebar p-2 border-right collapse custom-scrollbar" id="sidebar">
+            <ul class="nav flex-column">
+                {{ menu() }}
+            </ul>
+            <hr>
+            <ul class="nav flex-column">
+                {{ menu_links() }}
+            </ul>
+        </nav>
+
+        <main class="d-flex flex-fill flex-column overflow-auto">
+            {{ layout.messages() }}
+            {% set render_ctx = h.resolve_ctx() %} 
+            {% block body %}{% endblock %}
+        </main>
     </div>
 </div>
 {% endblock %}

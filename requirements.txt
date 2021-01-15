@@ -4,6 +4,7 @@ dnspython
 fire
 flask
 flask-admin
+flask-babelex
 flask-login
 lxml
 peewee
