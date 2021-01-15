@@ -10,19 +10,25 @@ from lib.pt_models import SEOSession
 def _raw_formatter(v, c, m, p):
     s = getattr(m, p)
     lines = s.splitlines()
-    is_bug = lines[0].startswith('  h1')  # todo: remove in next version
-    html = ''.join('<div>{}</div>'.format(ln[2 if is_bug else 0:].replace('  ', '&emsp;'))
-                   for ln in lines)
-    return Markup(html)
+    # todo: remove in next version
+    fix = 2 if lines and lines[0].startswith('  h1') else 0
+    wrap_f = '<div>{}</div>'
+    divs = [wrap_f.format(ln[fix:].replace('  ', '&emsp;')) for ln in lines]
+    return Markup(''.join(divs))
 
 
 def _url_newlines_formatter(v, c, m, p):
     return Markup(m.url.replace('/', '/<br />'))
 
 
-ICON_OK = '<i class="fa fa-check"></i>'
-ICON_FAIL = '<i class="fa fa-close text-danger"></i>'
-ICON_TITLE = '<div title="{}">{}</div>'
+def _cols_check_mark(attr_bool, attr_val):
+    ICON_OK = '<i class="fa fa-check"></i>'
+    ICON_FAIL = '<i class="fa fa-close text-danger"></i>'
+    ICON_TITLE = '<div title="{}">{}</div>'
+
+    def cm(v, c, m, p):
+        return Markup(ICON_TITLE.format(getattr(m, attr_val), ICON_OK if getattr(m, attr_bool) else ICON_FAIL))
+    return cm
 
 
 class IndexView(AdminIndexView):
@@ -153,13 +159,9 @@ class SEOCheckResultView(PTModelView):
     column_formatters = dict(
         created_at=lambda v, c, m, p: m.created_at.strftime('%H:%M:%S'),
         url=_url_newlines_formatter,
-        ttfb_ok=lambda v, c, m, p: Markup(ICON_TITLE.format(
-            m.ttfb, ICON_OK if m.ttfb_ok else ICON_FAIL)),
-        code_ok=lambda v, c, m, p: Markup(ICON_TITLE.format(
-            m.code, ICON_OK if m.code_ok else ICON_FAIL)),
-        title_ok=lambda v, c, m, p: Markup(ICON_TITLE.format(
-            m.title_len, ICON_OK if m.title_ok else ICON_FAIL)),
-        desc_ok=lambda v, c, m, p: Markup(ICON_TITLE.format(
-            m.desc_len, ICON_OK if m.desc_ok else ICON_FAIL)),
+        ttfb_ok=_cols_check_mark('ttfb', 'ttfb_ok'),
+        code_ok=_cols_check_mark('code', 'code_ok'),
+        title_ok=_cols_check_mark('title_len', 'title_ok'),
+        desc_ok=_cols_check_mark('desc_len', 'desc_ok'),
         headings=_raw_formatter,
     )
