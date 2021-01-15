@@ -1,5 +1,5 @@
 from flask import Markup, redirect, request, url_for
-from flask_admin import AdminIndexView, expose, helpers
+from flask_admin import AdminIndexView, expose, helpers, BaseView
 from flask_admin.contrib.peewee import ModelView
 from flask_admin.contrib.peewee.filters import FilterEqual
 import flask_login as login
@@ -8,7 +8,12 @@ from lib.pt_models import SEOSession
 
 
 def _raw_formatter(v, c, m, p):
-    return Markup('<pre><code>{}</code></pre>'.format(getattr(m, p)))
+    s = getattr(m, p)
+    lines = s.splitlines()
+    is_bug = lines[0].startswith('  h1')  # todo: remove in next version
+    html = ''.join('<div>{}</div>'.format(ln[2 if is_bug else 0:].replace('  ', '&emsp;'))
+                   for ln in lines)
+    return Markup(html)
 
 
 def _url_newlines_formatter(v, c, m, p):
@@ -30,14 +35,15 @@ class IndexView(AdminIndexView):
 
     @expose('/login/', methods=('GET', 'POST'))
     def login_view(self):
-        # handle user login
         from lib.pt_admin_forms import LoginForm
+
         form = LoginForm(request.form)
+
         if helpers.validate_form_on_submit(form):
             login.login_user(form.get_user(), remember=True)
 
         if login.current_user.is_authenticated:
-            return redirect(url_for('.index'))
+            return redirect(request.values.get('next') or url_for(".index"))
 
         self._template_args['form'] = form
         return super(IndexView, self).index()
@@ -48,18 +54,48 @@ class IndexView(AdminIndexView):
         return redirect(url_for('.index'))
 
 
-class PTModelView(ModelView):
-    def __init__(self, *args, **kwargs):
-        model = args[0]
-        kw = model._admin if hasattr(model, '_admin') else None
-        if kw:
-            for k, v in kw.items():
-                setattr(self, k, v)
-        super().__init__(*args, **kwargs)
-
+class PTBaseView(BaseView):
     def is_accessible(self):
         import flask_login as login
         return login.current_user.is_authenticated
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('admin.login_view', next=request.url))
+
+
+class PTModelView(ModelView):
+    def is_accessible(self):
+        import flask_login as login
+        return login.current_user.is_authenticated
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for('admin.login_view', next=request.url))
+
+
+class SEOResultSummaryView(PTBaseView):
+    @expose('/')
+    def index(self):
+        from lib.pt_models import SEOCheckResult as SCR
+        from collections import defaultdict, Counter
+
+        duplicates = []
+        session_titles = defaultdict(list)
+        session_descriptions = defaultdict(list)
+        items = SCR.select(SCR.id, SCR.session_id,
+                           SCR.title_text, SCR.desc_text)
+        for item in items:
+            session_titles[item.session_id].append(item.title_text)
+            session_descriptions[item.session_id].append(item.desc_text)
+
+        for sid, titles in session_titles.items():
+            duplicates += [(sid, 'title', title, count)
+                           for title, count in Counter(titles).items() if count > 1]
+        for sid, descriptions in session_descriptions.items():
+            duplicates += [(sid, 'description', description, count)
+                           for description, count in Counter(descriptions).items() if count > 1]
+
+        self._template_args['duplicates'] = duplicates
+        return self.render('adm/seo/summary.html')
 
 
 class UserView(PTModelView):

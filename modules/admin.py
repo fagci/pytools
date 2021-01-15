@@ -87,12 +87,14 @@ class Admin():
     def _load_models(self):
         print('[*] Load models...')
         from lib.pt_models import SEOSession, SEOCheckResult, User
-        from lib.pt_admin_views import SEOSessionView, SEOCheckResultView, UserView
+        from lib.pt_admin_views import SEOSessionView, SEOCheckResultView, UserView, SEOResultSummaryView
 
         self._admin.add_view(SEOSessionView(
             SEOSession, name='Sessions', category='SEO'))
         self._admin.add_view(SEOCheckResultView(
             SEOCheckResult, name='Results', category='SEO'))
+        self._admin.add_view(SEOResultSummaryView(
+            name='Summary', category='SEO'))
         self._admin.add_view(
             UserView(User, name='Users', category='Administration'))
 

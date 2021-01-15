@@ -1,0 +1,30 @@
+{% extends 'admin/master.html' %} {% block body %}
+{{ super() }}
+<div class="row-fluid">
+    <div class="container mt-5">
+        <h1>SEO Summary</h1>
+        <h2>Meta text duplicates</h2>
+        <table class="table  table-bordered">
+            <thead>
+                <tr>
+                    <th>Session</th>
+                    <th>Section</th>
+                    <th>Text</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in duplicates %}
+                {% set session, section, text, count = item %}
+                <tr>
+                    <td><a href="{{ url_for('seocheckresult.index_view')+'?flt1_session_id_equals=' }}{{session}}">View session {{session}}</a></td>
+                    <td>{{ section }}</td>
+                    <td>{{ text }}</td>
+                    <td>{{ count}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock body %}

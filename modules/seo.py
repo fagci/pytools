@@ -110,7 +110,8 @@ class Seo:
         headings = []
         for h in p.find_all(re.compile('^h[1-6]$')):
             tag = h.name
-            headings.append('{}{}: {}'.format('  '*int(tag[1:]), tag, h.text))
+            headings.append('{}{}: {}'.format(
+                '  '*(int(tag[1:]) - 1), tag, h.text))
 
         return {
             'headings': '\n'.join(headings),
