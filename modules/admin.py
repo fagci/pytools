@@ -28,6 +28,7 @@ class Admin():
         self._app = Flask(__name__, template_folder='../templates')
         cli.show_server_banner = lambda *_: None
         self._app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'Ih4v3s3cr'
+        self._app.config['MAX_CONTENT_LENGTH'] = 4096
 
         babel = Babel(self._app, default_locale='en')
         print(babel.list_translations())

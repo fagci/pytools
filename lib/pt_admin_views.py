@@ -1,10 +1,10 @@
 from flask import Markup, redirect, request, url_for
 from flask_admin import AdminIndexView, expose, helpers, BaseView
 from flask_admin.contrib.peewee import ModelView
-from flask_admin.contrib.peewee.filters import FilterEqual
+from flask_admin.contrib.peewee.filters import FilterEqual, FilterEmpty
 import flask_login as login
 
-from lib.pt_models import SEOSession
+from lib.pt_models import SEOSession, SEOCheckResult
 
 
 def _raw_formatter(v, c, m, p):
@@ -154,16 +154,18 @@ class SEOCheckResultView(PTModelView):
     column_exclude_list = ('code', 'created_at', 'id',
                            'validation', 'ttfb', 'code', 'title_len', 'desc_len')
     column_filters = [
-        FilterEqual(column=SEOSession.id, name='Session ID')
+        FilterEqual(column=SEOSession.id, name='Session ID'),
+        FilterEmpty(column=SEOCheckResult.comment, name='Empty or Full', options=(
+            ('Empty', 'Empty'), ('Full', 'Full'))),
     ]
     column_labels = dict(code_ok='Cod', ttfb_ok='TTFB', title_ok='T_OK',
                          desc_ok='D_OK', title_len='TL', desc_len='DL', session='Sess')
     column_formatters = dict(
         created_at=lambda v, c, m, p: m.created_at.strftime('%H:%M:%S'),
         url=_url_newlines_formatter,
-        ttfb_ok=_cols_check_mark('ttfb', 'ttfb_ok'),
-        code_ok=_cols_check_mark('code', 'code_ok'),
-        title_ok=_cols_check_mark('title_len', 'title_ok'),
-        desc_ok=_cols_check_mark('desc_len', 'desc_ok'),
+        ttfb_ok=_cols_check_mark('ttfb_ok', 'ttfb'),
+        code_ok=_cols_check_mark('code_ok', 'code'),
+        title_ok=_cols_check_mark('title_ok', 'title_len'),
+        desc_ok=_cols_check_mark('desc_ok', 'desc_len'),
         headings=_raw_formatter,
     )
