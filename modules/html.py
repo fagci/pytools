@@ -9,12 +9,16 @@ class Html:
         for href in get_page_ahrefs(url):
             print(href)
 
-    def sel(self, url, selector):
+    def sel(self, url, selector, fmt=None):
         """Shows some part of source by selector
 
         selector -- css selector, ex.: ul>li
         """
         for res in self._soup(url).select(selector):
+            if fmt == 'csv':
+                for tr in res.find_all('tr'):
+                    print(tr.get_text(','))
+                return
             print(res.prettify())
 
     def xpath(self, url, xpath):
