@@ -1,0 +1,20 @@
+{% extends 'admin/model/edit.html' %} 
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.59.2/codemirror.min.css" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.59.2/theme/gruvbox-dark.min.css" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.59.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.59.2/mode/yaml/yaml.min.js"></script>
+{% endblock %}
+
+{% block tail %}
+    {{ super() }}
+    <script>
+        var valueField = document.getElementById('value');
+        var editor = CodeMirror.fromTextArea(valueField, {
+            lineNumbers: true,
+            theme: 'gruvbox-dark',
+            mode: 'yaml'
+        });
+</script>
+{% endblock %}

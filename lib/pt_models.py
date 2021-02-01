@@ -60,12 +60,22 @@ class User(BaseModel):
         return '{} {} <{}>'.format(self.first_name, self.last_name, self.email)
 
 
+class Config(BaseModel):
+    name = CharField()
+    alias = CharField(64)
+    value = TextField(null=True)
+
+    def get_value(self, context={}):
+        from yex import Yex
+        return context > Yex(str(self.value))
+
+
 class FortuneIP(BaseModel):
     """Storage of gathered IPs"""
     created_at = DateTimeField(default=datetime.now())
     ip = TextField()
     port = IntegerField()
-    title = TextField(null=True)
+    title = CharField(null=True)
     description = TextField(null=True)
 
 
@@ -102,6 +112,12 @@ class SEOCheckResult(BaseModel):
     comment = TextField(null=True)
 
     @property
+    def cfg(self):
+        cfg = Config.select(Config.value).where(
+            Config.alias == 'seo_constraints').first()
+        return cfg.value if cfg else None
+
+    @property
     def words(self):
         from collections import Counter
         import re
@@ -128,4 +144,4 @@ class SEOCheckResult(BaseModel):
 
 
 def create_tables():
-    db.create_tables([User, FortuneIP, SEOSession, SEOCheckResult])
+    db.create_tables([User, FortuneIP, SEOSession, SEOCheckResult, Config])

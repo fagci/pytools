@@ -16,4 +16,5 @@ scapy
 stop-words
 tqdm
 wtf-peewee
+yaml-expressions
 yandex-search

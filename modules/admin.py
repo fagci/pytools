@@ -100,10 +100,12 @@ class Admin():
 
     def _load_models(self):
         print('[*] Load models...')
-        from lib.pt_models import SEOSession, SEOCheckResult, User
-        from lib.pt_admin_views import SEOSessionView, SEOCheckResultView, UserView, SEOResultSummaryView
+        from lib.pt_models import SEOSession, SEOCheckResult, User, Config
+        from lib.pt_admin_views import SEOSessionView, SEOCheckResultView, UserView, SEOResultSummaryView, ConfigView
         from flask_babelex import lazy_gettext as gettext
 
+        self._admin.add_view(ConfigView(
+            Config, name=gettext('Config'), category='Settings'))
         self._admin.add_view(SEOSessionView(
             SEOSession, name=gettext('Sessions'), category='SEO'))
         self._admin.add_view(SEOCheckResultView(

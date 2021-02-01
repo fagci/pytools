@@ -80,6 +80,11 @@ class PTModelView(ModelView):
         return redirect(url_for('admin.login_view', next=request.url))
 
 
+class ConfigView(PTModelView):
+    create_template = 'cfg_edit.html'
+    edit_template = 'cfg_edit.html'
+
+
 class SEOResultSummaryView(PTBaseView):
     @expose('/')
     def index(self):
@@ -150,6 +155,7 @@ class SEOCheckResultView(PTModelView):
         'validation',
         'comment',
         'words',
+        'cfg',
     )
     column_exclude_list = ('code', 'created_at', 'id',
                            'validation', 'ttfb', 'code', 'title_len', 'desc_len')
