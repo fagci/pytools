@@ -1,3 +1,6 @@
+from lib.pt_admin_views import PTModelView
+
+
 class Admin():
     def __init__(self, modules):
         self._modules = modules
@@ -100,7 +103,7 @@ class Admin():
 
     def _load_models(self):
         print('[*] Load models...')
-        from lib.pt_models import SEOSession, SEOCheckResult, User, Config
+        from lib.pt_models import SEOSession, SEOCheckResult, User, Config, FortuneIP
         from lib.pt_admin_views import SEOSessionView, SEOCheckResultView, UserView, SEOResultSummaryView, ConfigView
         from flask_babelex import lazy_gettext as gettext
 
@@ -114,6 +117,8 @@ class Admin():
             name=gettext('Summary'), category='SEO'))
         self._admin.add_view(
             UserView(User, name=gettext('Users'), category=gettext('Administration')))
+        self._admin.add_view(PTModelView(FortuneIP, name=gettext(
+            'Fortune'), category=gettext('Gathering')))
 
         try:
             import local.models as local_models
