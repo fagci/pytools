@@ -1,14 +1,14 @@
-from typing import Callable, Iterable, Iterator
+from typing import Callable, Iterator
 
 
-def ips_with_port(ips: Iterator or Iterable, port: int, workers: int = 16, timeout: float = 0.2, total=None):
+def ips_with_port(ips: Iterator or list, port: int, workers: int = 16, timeout: float = 0.2, total=None):
     """Filter IPs by given port"""
     from lib.pt_network import portchecker
     check_port = portchecker(port, timeout)
     return filter_ips2(ips, check_port, workers, total)
 
 
-def filter_ips2(ips: Iterator or Iterable, filter_fn: Callable, workers: int = 16, total=None):
+def filter_ips2(ips: Iterator or list, filter_fn: Callable, workers: int = 16, total=None):
     """Filter IPs by callable, which must return falsy value"""
     from threading import Thread
     from queue import Queue, Empty
@@ -27,6 +27,9 @@ def filter_ips2(ips: Iterator or Iterable, filter_fn: Callable, workers: int = 1
 
     for ip in islice(ips, workers):
         put(ip)
+
+    if isinstance(ips, list):
+        del ips[:workers]
 
     args = (filter_fn, q_in, q_out, pb,)
 
