@@ -10,9 +10,9 @@ def check_http(ip: str, timeout: float = 0.25):
     try:
         response = get(f'http://{ip}', HEADERS, timeout=timeout)
         bs = BeautifulSoup(response.content, 'html.parser')
-        return True, ip, bs.title.string.strip()
+        return True, ip, bs.title.string.strip(), ''
     except Exception as e:
-        return False, ip, e
+        return False, ip, e, ''
 
 
 def idna2ascii(url):
