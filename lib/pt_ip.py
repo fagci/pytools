@@ -52,3 +52,9 @@ def local_ip():
     with socket(AF_INET, SOCK_DGRAM) as sock:
         sock.connect(('8.8.8.8', 80))
         return sock.getsockname()[0]
+
+
+def external_ip():
+    """Get external ip"""
+    from urllib.request import urlopen
+    return urlopen('https://ifconfig.me').read().decode()

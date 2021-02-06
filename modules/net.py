@@ -7,6 +7,12 @@ class Net:
         print(local_ip())
 
     @staticmethod
+    def extip():
+        """Get external network IP"""
+        from lib.pt_ip import external_ip
+        print(external_ip())
+
+    @staticmethod
     def rdns(ip: str):
         """Make reverse dns request"""
         from socket import gethostbyaddr
