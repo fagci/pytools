@@ -33,7 +33,7 @@ class Fortune:
         if kwargs:
             for k, v in kwargs.items():
                 items = items.where(getattr(FortuneIP, k) % v)
-        for item in items.order_by(FortuneIP.title):
+        for item in items.order_by(FortuneIP.created_at):
             print('{}\t{}'.format(item.ip, item.title))
 
     @staticmethod
