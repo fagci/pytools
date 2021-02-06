@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from requests import get
+from urllib.request import urlopen, Request
 
 HEADERS = {
     'User-Agent': f'fagci_pytools/1.0 (see https://github.com/fagcinsk/pytools/'
@@ -8,9 +8,13 @@ HEADERS = {
 
 def check_http(ip: str, timeout: float = 0.25):
     try:
-        response = get(f'http://{ip}', HEADERS, timeout=timeout)
-        bs = BeautifulSoup(response.content, 'html.parser')
-        return True, ip, bs.title.string.strip(), ''
+        url = f'http://{ip}'
+        req = Request(url)
+        for hk, hv in HEADERS.items():
+            req.add_header(hk, hv)
+        with urlopen(req, timeout=timeout) as f:
+            bs = BeautifulSoup(f.read(1024).decode(), 'html.parser')
+            return True, ip, bs.title.string.strip(), ''
     except Exception as e:
         return False, ip, e, ''
 

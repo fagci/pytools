@@ -32,7 +32,7 @@ class Fortune:
         items = FortuneIP.select()
         if kwargs:
             for k, v in kwargs.items():
-                items = items.where(getattr(FortuneIP, k) == v)
+                items = items.where(getattr(FortuneIP, k) % v)
         for item in items.order_by(FortuneIP.title):
             print('{}\t{}'.format(item.ip, item.title))
 
