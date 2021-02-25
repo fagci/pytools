@@ -113,9 +113,10 @@ class SEOCheckResult(BaseModel):
 
     @property
     def cfg(self):
+        from playhouse.shortcuts import model_to_dict
         cfg = Config.select(Config.value).where(
             Config.alias == 'seo_constraints').first()
-        return cfg.value if cfg else None
+        return cfg.get_value(model_to_dict(self)) if cfg else None
 
     @property
     def words(self):
